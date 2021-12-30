@@ -13,7 +13,7 @@ GLuint tex;
 char title[] = "3D Model Loader Sample";
 
 // 3D Projection Options
-GLdouble fovy = 45.0;
+GLdouble fovy = 45;
 GLdouble aspectRatio = (GLdouble)WIDTH / (GLdouble)HEIGHT;
 GLdouble zNear = 0.1;
 GLdouble zFar = 1000;
@@ -121,31 +121,31 @@ GLTexture tex_ground;
 //=======================================================================
 // Lighting Configuration Function
 //=======================================================================
-void InitLightSource()
-{
-	// Enable Lighting for this OpenGL Program
-	glEnable(GL_LIGHTING);
-
-	// Enable Light Source number 0
-	// OpengL has 8 light sources
-	glEnable(GL_LIGHT0);
-
-	// Define Light source 0 ambient light
-	GLfloat ambient[] = { 0.1f, 0.1f, 0.1, 1.0f };
-	glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
-
-	// Define Light source 0 diffuse light
-	GLfloat diffuse[] = { 0.5f, 0.5f, 0.5f, 1.0f };
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
-
-	// Define Light source 0 Specular light
-	GLfloat specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
-
-	// Finally, define light source 0 position in World Space
-	GLfloat light_position[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-}
+//void InitLightSource()
+//{
+//	// Enable Lighting for this OpenGL Program
+//	glEnable(GL_LIGHTING);
+//
+//	// Enable Light Source number 0
+//	// OpengL has 8 light sources
+//	glEnable(GL_LIGHT0);
+//
+//	// Define Light source 0 ambient light
+//	GLfloat ambient[] = { 0.1f, 0.1f, 0.1, 1.0f };
+//	glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
+//
+//	// Define Light source 0 diffuse light
+//	GLfloat diffuse[] = { 0.5f, 0.5f, 0.5f, 1.0f };
+//	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
+//
+//	// Define Light source 0 Specular light
+//	GLfloat specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+//	glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
+//
+//	// Finally, define light source 0 position in World Space
+//	GLfloat light_position[] = { 0, 0,0, 1.0f };
+//	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+//}
 
 //=======================================================================
 // Material Configuration Function
@@ -206,7 +206,7 @@ public:
 	Vector3f position, rotation, scale, front;
 	float speed;
 	Car() {
-		model.Load("Models/3DS/Dodge Challenger SRT Hellcat 2015.3ds");
+		model.Load("Models/car/car.3ds");
 		position = Vector3f(0,0,20);
 		front = Vector3f(0,0,10);
 		rotation = Vector3f(0,0,0);
@@ -214,7 +214,7 @@ public:
 		speed = 0;
 	}
 	Car(Vector3f _position, Vector3f _rotation, Vector3f _scale, Vector3f _front, float _speed) {
-		model.Load("Models/car5.3ds");
+		model.Load("Models/car/car.3ds");
 		position = _position;
 		rotation = _rotation;
 		scale = _scale;
@@ -222,6 +222,7 @@ public:
 		speed = _speed;
 	}
 	void draw() {
+		//glColor3f(1, 1, 0);
 		glPopMatrix();
 		glPushMatrix();
 		glTranslated(position.x, position.y, position.z);
@@ -232,6 +233,101 @@ public:
 		model.Draw();
 		glPopMatrix();
 	}
+};
+
+class Box {
+public:
+	Model_3DS model;
+	Vector3f position, rotation, scale;
+	Box() {
+		model.Load("Models/box2.3ds");
+		position = Vector3f(10, 0, 10);
+		rotation = Vector3f(0, 0, 0);
+		scale = Vector3f(5,5,5);
+	}
+	Box(Vector3f _position, Vector3f _rotation, Vector3f _scale) {
+		model.Load("Models/box2.3ds");
+		position = _position;
+		rotation = _rotation;
+		scale = _scale;
+	}
+	void draw() {
+		//glColor3f(1, 1, 0);
+		glPopMatrix();
+		glPushMatrix();
+		glTranslated(position.x, position.y, position.z);
+		glScaled(scale.x, scale.y, scale.z);
+		glRotatef(rotation.z, 0, 0, 1);
+		glRotatef(rotation.y, 0, 1, 0);
+		glRotatef(rotation.x, 1, 0, 0);
+		model.Draw();
+		glPopMatrix();
+	}
+
+};
+
+class Coin {
+public:
+	Model_3DS model;
+	Vector3f position, rotation, scale;
+	Coin() {
+		model.Load("Models/coin2.3ds");
+		position = Vector3f(10, 1, 5);
+		rotation = Vector3f(0, 0, 90);
+		scale = Vector3f(1,1,1);
+	}
+	Coin(Vector3f _position, Vector3f _rotation, Vector3f _scale) {
+		model.Load("Models/coin.3ds");
+		position = _position;
+		rotation = _rotation;
+		scale = _scale;
+	}
+	void draw() {
+		glColor3f(1, 1, 0);
+		glPopMatrix();
+		glPushMatrix();
+		glTranslated(position.x, position.y, position.z);
+		glScaled(scale.x, scale.y, scale.z);
+		glRotatef(rotation.z, 0, 0, 1);
+		glRotatef(rotation.y, 0, 1, 0);
+		glRotatef(rotation.x, 1, 0, 0);
+		model.Draw();
+		glPopMatrix();
+		glColor3f(1, 1, 1);
+	}
+
+};
+
+class Tank {
+public:
+	Model_3DS model;
+	Vector3f position, rotation, scale;
+	Tank() {
+		model.Load("Models/tank.3ds");
+		position = Vector3f(15,4, -10);
+		rotation = Vector3f(0, 45, 0);
+		scale = Vector3f(0.03,0.03,0.03);
+	}
+	Tank(Vector3f _position, Vector3f _rotation, Vector3f _scale) {
+		model.Load("Models/tank.3ds");
+		position = _position;
+		rotation = _rotation;
+		scale = _scale;
+	}
+	void draw() {
+		glColor3f(1, 0, 0);
+		glPopMatrix();
+		glPushMatrix();
+		glTranslated(position.x, position.y, position.z);
+		glScaled(scale.x, scale.y, scale.z);
+		glRotatef(rotation.z, 0, 0, 1);
+		glRotatef(rotation.y, 0, 1, 0);
+		glRotatef(rotation.x, 1, 0, 0);
+		model.Draw();
+		glPopMatrix();
+		glColor3f(1, 1, 1);
+	}
+
 };
 
 void setupCamera() {
@@ -253,8 +349,50 @@ void setupCamera() {
 	camera.look();
 }
 
+void setupLights() {
+	GLfloat lmodel_ambient[] = { 0.1f, 0.1f, 0.1f, 1.0f };
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lmodel_ambient);
+
+	GLfloat l0Diffuse[] = { 1.0f, 0.0f, 0.0f, 1.0f };
+	GLfloat l0Spec[] = { 1.0f, 1.0f, 0.0f, 1.0f };
+	GLfloat l0Ambient[] = { 0.1f, 0.0f, 0.0f, 1.0f };
+	GLfloat l0Position[] = { 10.0f, 20.0f, 10, true };
+	GLfloat l0Direction[] = { -1.0, 0.0, 0.0 };
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, l0Diffuse);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, l0Ambient);
+	glLightfv(GL_LIGHT0, GL_POSITION, l0Position);
+	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 30.0);
+	glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, 90.0);
+	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, l0Direction);
+
+	GLfloat l1Diffuse[] = { 0.0f, 1.0f, 0.0f, 1.0f };
+	GLfloat l1Ambient[] = { 0.0f, 0.1f, 0.0f, 1.0f };
+	GLfloat l1Position[] = { 0.0f, 20.0f, 10, true };
+	GLfloat l1Direction[] = { 0.0, -1.0, 0.0 };
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, l1Diffuse);
+	glLightfv(GL_LIGHT1, GL_AMBIENT, l1Ambient);
+	glLightfv(GL_LIGHT1, GL_POSITION, l1Position);
+	glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 30.0);
+	glLightf(GL_LIGHT1, GL_SPOT_EXPONENT, 90.0);
+	glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, l1Direction);
+
+	GLfloat l2Diffuse[] = { 0.0f, 0.0f, 1.0f, 1.0f };
+	GLfloat l2Ambient[] = { 0.0f, 0.0f, 0.1f, 1.0f };
+	GLfloat l2Position[] = { 30.0f, 2.0f, 10, true };
+	GLfloat l2Direction[] = { 0.0, 0.0, -1.0 };
+	glLightfv(GL_LIGHT2, GL_DIFFUSE, l2Diffuse);
+	glLightfv(GL_LIGHT2, GL_AMBIENT, l2Ambient);
+	glLightfv(GL_LIGHT2, GL_POSITION, l2Position);
+	glLightf(GL_LIGHT2, GL_SPOT_CUTOFF, 30.0);
+	glLightf(GL_LIGHT2, GL_SPOT_EXPONENT, 90.0);
+	glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION, l2Direction);
+}
+
 
 Car car;
+Box box;
+Coin coin;
+Tank tank;
 
 //=======================================================================
 // OpengGL Configuration Function
@@ -263,7 +401,7 @@ void myInit(void)
 {
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 
-	InitLightSource();
+	//InitLightSource();
 
 	InitMaterial();
 
@@ -272,6 +410,9 @@ void myInit(void)
 	glEnable(GL_NORMALIZE);
 
 	car = Car();
+	box = Box();
+	coin = Coin();
+	tank = Tank();
 }
 
 //=======================================================================
@@ -280,6 +421,7 @@ void myInit(void)
 void myDisplay(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	setupLights();
 	setupCamera();
 
 
@@ -292,6 +434,9 @@ void myDisplay(void)
 	RenderGround();
 
 	car.draw();
+	box.draw();
+	coin.draw();
+	tank.draw();
 
 
 	//sky box
@@ -380,16 +525,28 @@ void myKeyboard(unsigned char button, int x, int y)
 		camera.fps = !camera.fps;
 		break;
 	case '0':
-		camera.moveZ(2);
+		//camera.moveZ(2);
+		//tank.position.x++;
+		//coin.position.x++;
+		//box.position.x++;
 		break;
 	case '1':
-		camera.moveZ(-2);
+		//camera.moveZ(-2);
+		//tank.position.x--;
+		//coin.position.x--;
+		//box.position.x--;
 		break;
 	case '2':
-		camera.moveY(2);
+		//camera.moveY(2);
+		//tank.position.z++;
+		//coin.position.z++;
+		//box.position.z++;
 		break;
 	case '3':
-		camera.moveY(-2);
+		//camera.moveY(-2);
+		//tank.position.z--;
+		//coin.position.z--;
+		//box.position.z--;
 		break;
 	case 27:
 		exit(0);
@@ -409,6 +566,9 @@ void time(int val) {
 	camera.eye = camera.eye + deltaD;
 	if (car.speed > 0) car.speed -= 0.01;
 	if (car.speed < 0) car.speed += 0.01;
+
+	if (coin.rotation.x == 0) coin.rotation.x = 360;
+	coin.rotation.x -= 2;
 
 	glutPostRedisplay();
 	glutTimerFunc(10, time, 0);
@@ -443,6 +603,8 @@ void main(int argc, char** argv)
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
+	glEnable(GL_LIGHT1);
+	glEnable(GL_LIGHT2);
 	glEnable(GL_NORMALIZE);
 	glEnable(GL_COLOR_MATERIAL);
 

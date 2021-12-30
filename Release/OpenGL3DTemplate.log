@@ -1,0 +1,23 @@
+﻿  GLTexture.cpp
+D:\GUC\semester 7\Computer Graphics\project\Project\RaceCar\GLTexture.cpp(61,16): warning C4996: '_strlwr': This function or variable may be unsafe. Consider using _strlwr_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+D:\GUC\semester 7\Computer Graphics\project\Project\RaceCar\GLTexture.cpp(65,17): warning C4996: 'strtok': This function or variable may be unsafe. Consider using strtok_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+D:\GUC\semester 7\Computer Graphics\project\Project\RaceCar\GLTexture.cpp(77,16): warning C4996: '_strlwr': This function or variable may be unsafe. Consider using _strlwr_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+D:\GUC\semester 7\Computer Graphics\project\Project\RaceCar\GLTexture.cpp(101,40): error C2664: 'AUX_RGBImageRec *auxDIBImageLoadW(LPCWSTR)': cannot convert argument 1 from 'char *' to 'LPCWSTR'
+D:\GUC\semester 7\Computer Graphics\project\Project\RaceCar\GLTexture.cpp(101,36): message : Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+D:\GUC\semester 7\Computer Graphics\project\Project\RaceCar\GLAUX.H(311,28): message : see declaration of 'auxDIBImageLoadW'
+D:\GUC\semester 7\Computer Graphics\project\Project\RaceCar\GLTexture.cpp(146,15): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+D:\GUC\semester 7\Computer Graphics\project\Project\RaceCar\GLTexture.cpp(230,47): error C2664: 'HRSRC FindResourceW(HMODULE,LPCWSTR,LPCWSTR)': cannot convert argument 2 from 'char *' to 'LPCWSTR'
+D:\GUC\semester 7\Computer Graphics\project\Project\RaceCar\GLTexture.cpp(230,32): message : Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\libloaderapi.h(642,1): message : see declaration of 'FindResourceW'
+D:\GUC\semester 7\Computer Graphics\project\Project\RaceCar\GLTexture.cpp(300,43): error C2664: 'HRSRC FindResourceW(HMODULE,LPCWSTR,LPCWSTR)': cannot convert argument 2 from 'char *' to 'LPCWSTR'
+D:\GUC\semester 7\Computer Graphics\project\Project\RaceCar\GLTexture.cpp(300,32): message : Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\libloaderapi.h(642,1): message : see declaration of 'FindResourceW'
+  Model_3DS.cpp
+  D:\GUC\semester 7\Computer Graphics\project\Project\RaceCar\Model_3DS.cpp(78) : You need to uncomment this if you are using MFC
+D:\GUC\semester 7\Computer Graphics\project\Project\RaceCar\Model_3DS.cpp(182,10): warning C4996: 'strtok': This function or variable may be unsafe. Consider using strtok_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+D:\GUC\semester 7\Computer Graphics\project\Project\RaceCar\Model_3DS.cpp(212,11): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+D:\GUC\semester 7\Computer Graphics\project\Project\RaceCar\Model_3DS.cpp(764,2): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  OpenGL3DTemplate.cpp
+D:\GUC\semester 7\Computer Graphics\project\Project\RaceCar\TextureBuilder.h(27,52): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+D:\GUC\semester 7\Computer Graphics\project\Project\RaceCar\TextureBuilder.h(28,52): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+D:\GUC\semester 7\Computer Graphics\project\Project\RaceCar\OpenGL3DTemplate.cpp(5,10): fatal error C1083: Cannot open include file: 'glut.h': No such file or directory
