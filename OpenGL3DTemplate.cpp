@@ -118,34 +118,6 @@ Camera camera = Camera();
 // Textures
 GLTexture tex_ground;
 
-//=======================================================================
-// Lighting Configuration Function
-//=======================================================================
-//void InitLightSource()
-//{
-//	// Enable Lighting for this OpenGL Program
-//	glEnable(GL_LIGHTING);
-//
-//	// Enable Light Source number 0
-//	// OpengL has 8 light sources
-//	glEnable(GL_LIGHT0);
-//
-//	// Define Light source 0 ambient light
-//	GLfloat ambient[] = { 0.1f, 0.1f, 0.1, 1.0f };
-//	glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
-//
-//	// Define Light source 0 diffuse light
-//	GLfloat diffuse[] = { 0.5f, 0.5f, 0.5f, 1.0f };
-//	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
-//
-//	// Define Light source 0 Specular light
-//	GLfloat specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-//	glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
-//
-//	// Finally, define light source 0 position in World Space
-//	GLfloat light_position[] = { 0, 0,0, 1.0f };
-//	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-//}
 
 //=======================================================================
 // Material Configuration Function
@@ -201,6 +173,12 @@ void RenderGround()
 }
 
 
+// for collision detection
+float distance(float x1, float z1, float x2, float z2) { 
+	return (x1 - x2) * (x1 - x2) + (z1 - z2) * (z1 - z2);
+} 
+
+
 class Car {
 public:
 	Model_3DS model;
@@ -223,9 +201,11 @@ public:
 		scale = _scale;
 		front = _front;
 		speed = _speed;
+		sirenX = 1;
+		sirenZ = -1;
 	}
 	void draw() {
-		//glColor3f(1, 1, 0);
+		
 		glPopMatrix();
 		glPushMatrix();
 		glTranslated(position.x, position.y, position.z);
@@ -234,6 +214,12 @@ public:
 		glRotatef(180 + rotation.y, 0, 1, 0);
 		glRotatef(rotation.x, 1, 0, 0);
 		model.Draw();
+		glPopMatrix();
+
+		glPushMatrix();
+		glTranslated(position.x, 1.7, position.z);
+		glRotatef(90, 1, 0, 0);
+		gluCylinder(gluNewQuadric(), 0.2, 0.3, 0.4, 20, 20);
 		glPopMatrix();
 
 		//front car lights
@@ -277,33 +263,49 @@ public:
 	}
 };
 
+Car car;
+
 class Box {
 public:
 	Model_3DS model;
 	Vector3f position, rotation, scale;
+	bool visible;
 	Box() {
 		model.Load("Models/box1.3ds");
 		position = Vector3f(10, 0, 10);
 		rotation = Vector3f(0, 0, 0);
 		scale = Vector3f(5,5,5);
+		visible = true;
 	}
 	Box(Vector3f _position, Vector3f _rotation, Vector3f _scale) {
 		model.Load("Models/box1.3ds");
 		position = _position;
 		rotation = _rotation;
 		scale = _scale;
+		visible = true;
 	}
 	void draw() {
-		//glColor3f(1, 1, 0);
-		glPopMatrix();
-		glPushMatrix();
-		glTranslated(position.x, position.y, position.z);
-		glScaled(scale.x, scale.y, scale.z);
-		glRotatef(rotation.z, 0, 0, 1);
-		glRotatef(rotation.y, 0, 1, 0);
-		glRotatef(rotation.x, 1, 0, 0);
-		model.Draw();
-		glPopMatrix();
+		if (visible) {
+			//glColor3f(1, 1, 0);
+			glPopMatrix();
+			glPushMatrix();
+			glTranslated(position.x, position.y, position.z);
+			glScaled(scale.x, scale.y, scale.z);
+			glRotatef(rotation.z, 0, 0, 1);
+			glRotatef(rotation.y, 0, 1, 0);
+			glRotatef(rotation.x, 1, 0, 0);
+			model.Draw();
+			glPopMatrix();
+
+			Vector3f carFrontCenter = car.position + car.lightDir;
+			Vector3f carBackCenter = car.position - car.lightDir;
+			if (distance(position.x, position.z, car.position.x, car.position.z) <= 4 ||
+				distance(position.x, position.z, carFrontCenter.x, carFrontCenter.z) <= 4 ||
+				distance(position.x, position.z, carBackCenter.x, carBackCenter.z) <= 3){
+				//detected collision with the car
+				visible = false;
+			}
+		}
 	}
 
 };
@@ -312,30 +314,44 @@ class Coin {
 public:
 	Model_3DS model;
 	Vector3f position, rotation, scale;
+	bool visible;
 	Coin() {
 		model.Load("Models/coin2.3ds");
 		position = Vector3f(10, 1, 5);
 		rotation = Vector3f(0, 0, 90);
 		scale = Vector3f(1,1,1);
+		visible = true;
 	}
 	Coin(Vector3f _position, Vector3f _rotation, Vector3f _scale) {
 		model.Load("Models/coin.3ds");
 		position = _position;
 		rotation = _rotation;
 		scale = _scale;
+		visible = true;
 	}
 	void draw() {
-		glColor3f(1, 1, 0);
-		glPopMatrix();
-		glPushMatrix();
-		glTranslated(position.x, position.y, position.z);
-		glScaled(scale.x, scale.y, scale.z);
-		glRotatef(rotation.z, 0, 0, 1);
-		glRotatef(rotation.y, 0, 1, 0);
-		glRotatef(rotation.x, 1, 0, 0);
-		model.Draw();
-		glPopMatrix();
-		glColor3f(1, 1, 1);
+		if (visible) {
+			glColor3f(1, 1, 0);
+			glPopMatrix();
+			glPushMatrix();
+			glTranslated(position.x, position.y, position.z);
+			glScaled(scale.x, scale.y, scale.z);
+			glRotatef(rotation.z, 0, 0, 1);
+			glRotatef(rotation.y, 0, 1, 0);
+			glRotatef(rotation.x, 1, 0, 0);
+			model.Draw();
+			glPopMatrix();
+			glColor3f(1, 1, 1);
+
+			Vector3f carFrontCenter = car.position + car.lightDir;
+			Vector3f carBackCenter = car.position - car.lightDir;
+			if (distance(position.x, position.z, car.position.x, car.position.z) <= 4 ||
+				distance(position.x, position.z, carFrontCenter.x, carFrontCenter.z) <= 4 ||
+				distance(position.x, position.z, carBackCenter.x, carBackCenter.z) <= 3) {
+				//detected collision with the car
+				visible = false;
+			}
+		}
 	}
 
 };
@@ -344,30 +360,44 @@ class Tank {
 public:
 	Model_3DS model;
 	Vector3f position, rotation, scale;
+	bool visible;
 	Tank() {
 		model.Load("Models/tank.3ds");
 		position = Vector3f(15,4, -10);
 		rotation = Vector3f(0, 45, 0);
 		scale = Vector3f(0.03,0.03,0.03);
+		visible = true;
 	}
 	Tank(Vector3f _position, Vector3f _rotation, Vector3f _scale) {
 		model.Load("Models/tank.3ds");
 		position = _position;
 		rotation = _rotation;
 		scale = _scale;
+		visible = true;
 	}
 	void draw() {
-		glColor3f(1, 0, 0);
-		glPopMatrix();
-		glPushMatrix();
-		glTranslated(position.x, position.y, position.z);
-		glScaled(scale.x, scale.y, scale.z);
-		glRotatef(rotation.z, 0, 0, 1);
-		glRotatef(rotation.y, 0, 1, 0);
-		glRotatef(rotation.x, 1, 0, 0);
-		model.Draw();
-		glPopMatrix();
-		glColor3f(1, 1, 1);
+		if (visible) {
+			glColor3f(1, 0, 0);
+			glPopMatrix();
+			glPushMatrix();
+			glTranslated(position.x, position.y, position.z);
+			glScaled(scale.x, scale.y, scale.z);
+			glRotatef(rotation.z, 0, 0, 1);
+			glRotatef(rotation.y, 0, 1, 0);
+			glRotatef(rotation.x, 1, 0, 0);
+			model.Draw();
+			glPopMatrix();
+			glColor3f(1, 1, 1);
+
+			Vector3f carFrontCenter = car.position + car.lightDir;
+			Vector3f carBackCenter = car.position - car.lightDir;
+			if (distance(position.x - 5, position.z + 12, car.position.x, car.position.z) <= 2 ||
+				distance(position.x - 5, position.z + 12, carFrontCenter.x, carFrontCenter.z) <= 3 ||
+				distance(position.x - 5, position.z + 12, carBackCenter.x, carBackCenter.z) <= 2) {
+				//detected collision with the car
+				visible = false;
+			}
+		}
 	}
 
 };
@@ -391,7 +421,7 @@ void setupCamera() {
 	camera.look();
 }
 
-Car car;
+
 Box box;
 Coin coin;
 Tank tank;
