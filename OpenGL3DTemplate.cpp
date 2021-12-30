@@ -173,7 +173,7 @@ void InitMaterial()
 //=======================================================================
 void RenderGround()
 {
-	glDisable(GL_LIGHTING);	// Disable lighting 
+	//glDisable(GL_LIGHTING);	// Disable lighting 
 
 	glColor3f(0.6, 0.6, 0.6);	// Dim the ground texture a bit
 
@@ -195,16 +195,17 @@ void RenderGround()
 	glEnd();
 	glPopMatrix();
 
-	glEnable(GL_LIGHTING);	// Enable lighting again for other entites coming throung the pipeline.
+	//glEnable(GL_LIGHTING);	// Enable lighting again for other entites coming throung the pipeline.
 
 	glColor3f(1, 1, 1);	// Set material back to white instead of grey used for the ground texture.
 }
 
+
 class Car {
 public:
 	Model_3DS model;
-	Vector3f position, rotation, scale, front;
-	float speed;
+	Vector3f position, rotation, scale, front, lightDir, auxAxix;
+	float speed, sirenX, sirenZ;
 	Car() {
 		model.Load("Models/car/car.3ds");
 		position = Vector3f(0,0,20);
@@ -212,6 +213,8 @@ public:
 		rotation = Vector3f(0,0,0);
 		scale = Vector3f(0.01,0.01,0.01);
 		speed = 0;
+		sirenX = 1;
+		sirenZ = -1;
 	}
 	Car(Vector3f _position, Vector3f _rotation, Vector3f _scale, Vector3f _front, float _speed) {
 		model.Load("Models/car/car.3ds");
@@ -232,6 +235,45 @@ public:
 		glRotatef(rotation.x, 1, 0, 0);
 		model.Draw();
 		glPopMatrix();
+
+		//front car lights
+		lightDir = (front - position).unit();
+		auxAxix = lightDir.cross(Vector3f(0, 1, 0));
+
+		//right car light
+		GLfloat l3Diffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+		GLfloat l3Spec[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+		GLfloat l3Position[] = { position.x + 2 * auxAxix.x, 1, position.z + 2 * auxAxix.z, true };
+		GLfloat l3Direction[] = { lightDir.x, 0, lightDir.z };
+		glLightfv(GL_LIGHT3, GL_DIFFUSE, l3Diffuse);
+		glLightfv(GL_LIGHT3, GL_SPECULAR, l3Spec);
+		glLightfv(GL_LIGHT3, GL_POSITION, l3Position);
+		glLightf(GL_LIGHT3, GL_SPOT_CUTOFF, 30);
+		glLightf(GL_LIGHT3, GL_SPOT_EXPONENT, 120);
+		glLightfv(GL_LIGHT3, GL_SPOT_DIRECTION, l3Direction);
+		//try to make light fade as it 
+
+		//left car light
+		GLfloat l4Position[] = { position.x - 2 * auxAxix.x, 1, position.z - 2 * auxAxix.z, true };
+		glLightfv(GL_LIGHT4, GL_DIFFUSE, l3Diffuse);
+		glLightfv(GL_LIGHT4, GL_SPECULAR, l3Spec);
+		glLightfv(GL_LIGHT4, GL_POSITION, l4Position);
+		glLightf(GL_LIGHT4, GL_SPOT_CUTOFF, 30);
+		glLightf(GL_LIGHT4, GL_SPOT_EXPONENT, 120);
+		glLightfv(GL_LIGHT4, GL_SPOT_DIRECTION, l3Direction);
+		//try to make light fade as it 
+
+
+		//siren
+		GLfloat l5Diffuse[] = { 1.0f, 0.0f, 0.0f, 1.0f };
+		GLfloat l5Position[] = { position.x, 5, position.z, true };
+		GLfloat l5Direction[] = { sirenX, -20, sirenZ };
+		glLightfv(GL_LIGHT5, GL_DIFFUSE, l5Diffuse);
+		glLightfv(GL_LIGHT5, GL_POSITION, l5Position);
+		glLightf(GL_LIGHT5, GL_SPOT_CUTOFF, 30);
+		glLightf(GL_LIGHT5, GL_SPOT_EXPONENT, 80);
+		glLightfv(GL_LIGHT5, GL_SPOT_DIRECTION, l5Direction);
+
 	}
 };
 
@@ -240,13 +282,13 @@ public:
 	Model_3DS model;
 	Vector3f position, rotation, scale;
 	Box() {
-		model.Load("Models/box2.3ds");
+		model.Load("Models/box1.3ds");
 		position = Vector3f(10, 0, 10);
 		rotation = Vector3f(0, 0, 0);
 		scale = Vector3f(5,5,5);
 	}
 	Box(Vector3f _position, Vector3f _rotation, Vector3f _scale) {
-		model.Load("Models/box2.3ds");
+		model.Load("Models/box1.3ds");
 		position = _position;
 		rotation = _rotation;
 		scale = _scale;
@@ -349,50 +391,11 @@ void setupCamera() {
 	camera.look();
 }
 
-void setupLights() {
-	GLfloat lmodel_ambient[] = { 0.1f, 0.1f, 0.1f, 1.0f };
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lmodel_ambient);
-
-	GLfloat l0Diffuse[] = { 1.0f, 0.0f, 0.0f, 1.0f };
-	GLfloat l0Spec[] = { 1.0f, 1.0f, 0.0f, 1.0f };
-	GLfloat l0Ambient[] = { 0.1f, 0.0f, 0.0f, 1.0f };
-	GLfloat l0Position[] = { 10.0f, 20.0f, 10, true };
-	GLfloat l0Direction[] = { -1.0, 0.0, 0.0 };
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, l0Diffuse);
-	glLightfv(GL_LIGHT0, GL_AMBIENT, l0Ambient);
-	glLightfv(GL_LIGHT0, GL_POSITION, l0Position);
-	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 30.0);
-	glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, 90.0);
-	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, l0Direction);
-
-	GLfloat l1Diffuse[] = { 0.0f, 1.0f, 0.0f, 1.0f };
-	GLfloat l1Ambient[] = { 0.0f, 0.1f, 0.0f, 1.0f };
-	GLfloat l1Position[] = { 0.0f, 20.0f, 10, true };
-	GLfloat l1Direction[] = { 0.0, -1.0, 0.0 };
-	glLightfv(GL_LIGHT1, GL_DIFFUSE, l1Diffuse);
-	glLightfv(GL_LIGHT1, GL_AMBIENT, l1Ambient);
-	glLightfv(GL_LIGHT1, GL_POSITION, l1Position);
-	glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 30.0);
-	glLightf(GL_LIGHT1, GL_SPOT_EXPONENT, 90.0);
-	glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, l1Direction);
-
-	GLfloat l2Diffuse[] = { 0.0f, 0.0f, 1.0f, 1.0f };
-	GLfloat l2Ambient[] = { 0.0f, 0.0f, 0.1f, 1.0f };
-	GLfloat l2Position[] = { 30.0f, 2.0f, 10, true };
-	GLfloat l2Direction[] = { 0.0, 0.0, -1.0 };
-	glLightfv(GL_LIGHT2, GL_DIFFUSE, l2Diffuse);
-	glLightfv(GL_LIGHT2, GL_AMBIENT, l2Ambient);
-	glLightfv(GL_LIGHT2, GL_POSITION, l2Position);
-	glLightf(GL_LIGHT2, GL_SPOT_CUTOFF, 30.0);
-	glLightf(GL_LIGHT2, GL_SPOT_EXPONENT, 90.0);
-	glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION, l2Direction);
-}
-
-
 Car car;
 Box box;
 Coin coin;
 Tank tank;
+
 
 //=======================================================================
 // OpengGL Configuration Function
@@ -400,8 +403,6 @@ Tank tank;
 void myInit(void)
 {
 	glClearColor(0.0, 0.0, 0.0, 0.0);
-
-	//InitLightSource();
 
 	InitMaterial();
 
@@ -421,22 +422,16 @@ void myInit(void)
 void myDisplay(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	setupLights();
 	setupCamera();
-
-
-	GLfloat lightIntensity[] = { 0.7, 0.7, 0.7, 1.0f };
-	GLfloat lightPosition[] = { 0.0f, 100.0f, 0.0f, 0.0f };
-	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
-	glLightfv(GL_LIGHT0, GL_AMBIENT, lightIntensity);
 
 	// Draw Ground
 	RenderGround();
 
-	car.draw();
+	
 	box.draw();
 	coin.draw();
 	tank.draw();
+	car.draw();
 
 
 	//sky box
@@ -529,6 +524,7 @@ void myKeyboard(unsigned char button, int x, int y)
 		//tank.position.x++;
 		//coin.position.x++;
 		//box.position.x++;
+		//glDisable(GL_LIGHTING);
 		break;
 	case '1':
 		//camera.moveZ(-2);
@@ -559,16 +555,27 @@ void myKeyboard(unsigned char button, int x, int y)
 }
 
 void time(int val) {
-	Vector3f deltaD = (car.front - car.position).unit() * car.speed;
-	car.position = car.position + deltaD;
-	car.front = car.front + deltaD;
-	camera.center = camera.center + deltaD;
-	camera.eye = camera.eye + deltaD;
-	if (car.speed > 0) car.speed -= 0.01;
-	if (car.speed < 0) car.speed += 0.01;
+	if (car.speed != 0) {
+		Vector3f deltaD = (car.front - car.position).unit() * car.speed;
+		car.position = car.position + deltaD;
+		car.front = car.front + deltaD;
+		camera.center = camera.center + deltaD;
+		camera.eye = camera.eye + deltaD;
+		if (car.speed > 0) car.speed -= 0.01;
+		if (car.speed < 0) car.speed += 0.01;
+	}
 
 	if (coin.rotation.x == 0) coin.rotation.x = 360;
 	coin.rotation.x -= 2;
+
+	/*car.sirenX -= car.position.x;
+	car.sirenZ -= car.position.z;*/
+	float xTmp = car.sirenX, zTmp = car.sirenZ;
+	car.sirenX = xTmp * 0.9961946981  - zTmp * 0.08715574275; //rotate -5 degrees
+	car.sirenZ = xTmp * 0.08715574275 + zTmp * 0.9961946981;
+	/*car.sirenX += car.position.x;
+	car.sirenZ += car.position.z;*/
+
 
 	glutPostRedisplay();
 	glutTimerFunc(10, time, 0);
@@ -602,9 +609,9 @@ void main(int argc, char** argv)
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
-	glEnable(GL_LIGHT1);
-	glEnable(GL_LIGHT2);
+	glEnable(GL_LIGHT3);
+	glEnable(GL_LIGHT4);
+	glEnable(GL_LIGHT5);
 	glEnable(GL_NORMALIZE);
 	glEnable(GL_COLOR_MATERIAL);
 
