@@ -205,6 +205,14 @@ public:
 		sirenZ = -1;
 	}
 	void draw() {
+
+		glColor3f(1, 0, 0);
+		glPushMatrix();
+		glTranslated(position.x, 1.7, position.z);
+		glRotatef(90, 1, 0, 0);
+		gluCylinder(gluNewQuadric(), 0.1, 0.2, 0.4, 20, 20);
+		glPopMatrix();
+		glColor3f(1, 1, 1);
 		
 		glPopMatrix();
 		glPushMatrix();
@@ -214,12 +222,6 @@ public:
 		glRotatef(180 + rotation.y, 0, 1, 0);
 		glRotatef(rotation.x, 1, 0, 0);
 		model.Draw();
-		glPopMatrix();
-
-		glPushMatrix();
-		glTranslated(position.x, 1.7, position.z);
-		glRotatef(90, 1, 0, 0);
-		gluCylinder(gluNewQuadric(), 0.2, 0.3, 0.4, 20, 20);
 		glPopMatrix();
 
 		//front car lights
