@@ -3,14 +3,16 @@
 #include "GLTexture.h"
 #include <math.h>
 #include <glut.h>
+#include <iostream>
 
 #define DEG2RAD(a) (a * 0.0174532925)
 
 int WIDTH = 1200;
 int HEIGHT = 700;
-
+int lives = 3;
 GLuint tex;
 char title[] = "3D Model Loader Sample";
+bool gameover = false;
 
 // 3D Projection Options
 GLdouble fovy = 45;
@@ -494,8 +496,8 @@ Road road1, road2, road3, road4;
 Building building1, building2;
 
 void declareBuildings() {
-	building1 = Building(Vector3f(-2, -1, 15), Vector3f(-90, 90, 0), Vector3f(2,2,2));
-	building2 = Building(Vector3f(8, -1, 15), Vector3f(90, 90, 0), Vector3f(2, 2, 2));
+	building1 = Building(Vector3f(8, -1, 15), Vector3f(-90, 90, 0), Vector3f(2,2,2));
+	building2 = Building(Vector3f(20, -1, 15), Vector3f(90, 90, 0), Vector3f(1, 2, 2));
 }
 
 void declareRoads() {
@@ -542,6 +544,7 @@ void myDisplay(void)
 	coin.draw();
 	tank.draw();
 	car.draw();
+	// building draw
 	building1.draw();
 	building2.draw();
 	//road.draw();
@@ -576,101 +579,114 @@ void myDisplay(void)
 //=======================================================================
 void myKeyboard(unsigned char button, int x, int y)
 {
-	float frontX, frontZ;
-	Vector3f eye, center;
-	switch (button)
-	{
-	case 'w':
-		car.speed += 0.05;
-		if (car.speed > 0.5) car.speed = 0.5;
-		break;
-	case 's':
-		car.speed -= 0.05;
-		if (car.speed < -0.2) car.speed = -0.2;
-		break;
-	case 'd':
-		car.rotation.y -= 5;
-		car.front.x -= car.position.x; //translate to coincide the car center with origin
-		car.front.z -= car.position.z;
-		frontX = car.front.x; frontZ = car.front.z;
-		car.front.x = frontX * 0.9961946981 - frontZ * 0.08715574275; //rotate -5 degrees
-		car.front.z = frontX * 0.08715574275 + frontZ * 0.9961946981;
-		car.front.x += car.position.x; //translate back
-		car.front.z += car.position.z;
-		if (camera.fps) {
-			camera.eye = car.position + Vector3f(0, 5, 0);
-			camera.center = car.front + (car.front - car.position) * 3;
+	if (!gameover) {
+		float frontX, frontZ;
+		Vector3f eye, center;
+		switch (button)
+		{
+		case 'w':
+			car.speed += 0.05;
+			if (car.speed > 0.5) car.speed = 0.5;
+			break;
+		case 's':
+			car.speed -= 0.05;
+			if (car.speed < -0.2) car.speed = -0.2;
+			break;
+		case 'd':
+			car.rotation.y -= 5;
+			car.front.x -= car.position.x; //translate to coincide the car center with origin
+			car.front.z -= car.position.z;
+			frontX = car.front.x; frontZ = car.front.z;
+			car.front.x = frontX * 0.9961946981 - frontZ * 0.08715574275; //rotate -5 degrees
+			car.front.z = frontX * 0.08715574275 + frontZ * 0.9961946981;
+			car.front.x += car.position.x; //translate back
+			car.front.z += car.position.z;
+			if (camera.fps) {
+				camera.eye = car.position + Vector3f(0, 5, 0);
+				camera.center = car.front + (car.front - car.position) * 3;
+			}
+			else {
+				camera.center = car.front; // adjust camera tps
+				camera.eye = car.position * 2 - car.front + Vector3f(0, 5, 0);
+			}
+			break;
+		case 'a':
+			car.rotation.y += 5;
+			car.front.x -= car.position.x; //translate to coincide the car center with origin
+			car.front.z -= car.position.z;
+			frontX = car.front.x; frontZ = car.front.z;
+			car.front.x = frontX * 0.9961946981 + frontZ * 0.08715574275; //rotate -5 degrees
+			car.front.z = -frontX * 0.08715574275 + frontZ * 0.9961946981;
+			car.front.x += car.position.x; //translate back
+			car.front.z += car.position.z;
+			if (camera.fps) {
+				camera.eye = car.position + Vector3f(0, 5, 0);
+				camera.center = car.front + (car.front - car.position) * 3;
+			}
+			else {
+				camera.center = car.front; // adjust camera tps
+				camera.eye = car.position * 2 - car.front + Vector3f(0, 5, 0);
+			}
+			break;
+		case 'v': //switch between fps and tps
+			if (!camera.fps) {
+				camera.eye = car.position + Vector3f(0, 5, 0);
+				camera.center = car.front + (car.front - car.position) * 3;
+			}
+			else {
+				camera.center = car.front; // adjust camera tps
+				camera.eye = car.position * 2 - car.front + Vector3f(0, 5, 0);
+			}
+			camera.fps = !camera.fps;
+			break;
+		case '0':
+			//camera.moveZ(2);
+			//tank.position.x++;
+			//coin.position.x++;
+			//box.position.x++;
+			//glDisable(GL_LIGHTING);
+			break;
+		case '1':
+			//camera.moveZ(-2);
+			//tank.position.x--;
+			//coin.position.x--;
+			//box.position.x--;
+			break;
+		case '2':
+			//camera.moveY(2);
+			//tank.position.z++;
+			//coin.position.z++;
+			//box.position.z++;
+			break;
+		case '3':
+			//camera.moveY(-2);
+			//tank.position.z--;
+			//coin.position.z--;
+			//box.position.z--;
+			break;
+		case 27:
+			exit(0);
+			break;
+		default:
+			break;
 		}
-		else {
-			camera.center = car.front; // adjust camera tps
-			camera.eye = car.position * 2 - car.front + Vector3f(0, 5, 0);
-		}
-		break;
-	case 'a':
-		car.rotation.y += 5;
-		car.front.x -= car.position.x; //translate to coincide the car center with origin
-		car.front.z -= car.position.z;
-		frontX = car.front.x; frontZ = car.front.z;
-		car.front.x =   frontX * 0.9961946981 + frontZ * 0.08715574275; //rotate -5 degrees
-		car.front.z = - frontX * 0.08715574275 + frontZ * 0.9961946981;
-		car.front.x += car.position.x; //translate back
-		car.front.z += car.position.z;
-		if (camera.fps) {
-			camera.eye = car.position + Vector3f(0, 5, 0);
-			camera.center = car.front + (car.front - car.position) * 3;
-		}
-		else {
-			camera.center = car.front; // adjust camera tps
-			camera.eye = car.position * 2 - car.front + Vector3f(0, 5, 0);
-		}
-		break;
-	case 'v': //switch between fps and tps
-		if (!camera.fps) {
-			camera.eye = car.position + Vector3f(0, 5, 0);
-			camera.center = car.front + (car.front - car.position) * 3;
-		}
-		else {
-			camera.center = car.front; // adjust camera tps
-			camera.eye = car.position * 2 - car.front + Vector3f(0, 5, 0);
-		}
-		camera.fps = !camera.fps;
-		break;
-	case '0':
-		//camera.moveZ(2);
-		//tank.position.x++;
-		//coin.position.x++;
-		//box.position.x++;
-		//glDisable(GL_LIGHTING);
-		break;
-	case '1':
-		//camera.moveZ(-2);
-		//tank.position.x--;
-		//coin.position.x--;
-		//box.position.x--;
-		break;
-	case '2':
-		//camera.moveY(2);
-		//tank.position.z++;
-		//coin.position.z++;
-		//box.position.z++;
-		break;
-	case '3':
-		//camera.moveY(-2);
-		//tank.position.z--;
-		//coin.position.z--;
-		//box.position.z--;
-		break;
-	case 27:
-		exit(0);
-		break;
-	default:
-		break;
 	}
-
 	glutPostRedisplay();
 }
 
+
 void time(int val) {
+	// check if out of lives 
+	if (lives <= 0)
+		gameover=1;
+
+	// check if out of boundaries
+	int x = car.position.x, z = car.position.z;
+	if( (x > 3 && x < 61 && z > -66 && z < 26) || !(x > -1.5 && x < 66 && z > -70 && z < 30) ) {
+		
+		lives = 0; // game over if out of the track boundaries
+	}
+
 	if (car.speed != 0) {
 		Vector3f deltaD = (car.front - car.position).unit() * car.speed;
 		car.position = car.position + deltaD;
@@ -692,6 +708,7 @@ void time(int val) {
 	/*car.sirenX += car.position.x;
 	car.sirenZ += car.position.z;*/
 
+	std::cout << car.position.x << ' ' << car.position.z << '\n';
 
 	glutPostRedisplay();
 	glutTimerFunc(10, time, 0);
