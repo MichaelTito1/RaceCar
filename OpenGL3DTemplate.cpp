@@ -413,9 +413,9 @@ public:
 
 	Road() {
 		model.Load("Models/city/road/untitled.3ds");
-		position = Vector3f(20, -1, 10);
+		position = Vector3f(0, -1, 5);
 		rotation = Vector3f(0, 90, 0);
-		scale = Vector3f(1, 1, 1);
+		scale = Vector3f(1.2, 1, 1);
 	}
 	Road(Vector3f _position, Vector3f _rotation, Vector3f _scale) {
 		model.Load("Models/city/road/untitled.3ds");
@@ -443,7 +443,7 @@ public:
 
 	Building() {
 		model.Load("Models/house/house.3ds");
-		position = Vector3f(30, -1, 5);
+		position = Vector3f(8, -1, 5);
 		rotation = Vector3f(90, 90, 0);
 		scale = Vector3f(2, 2, 2);
 	}
@@ -490,8 +490,20 @@ void setupCamera() {
 Box box;
 Coin coin;
 Tank tank;
-Road road;
-Building building;
+Road road1, road2, road3, road4;
+Building building1, building2;
+
+void declareBuildings() {
+	building1 = Building(Vector3f(-2, -1, 15), Vector3f(-90, 90, 0), Vector3f(2,2,2));
+	building2 = Building(Vector3f(8, -1, 15), Vector3f(90, 90, 0), Vector3f(2, 2, 2));
+}
+
+void declareRoads() {
+	road1 = Road(Vector3f(0, -1, -20), Vector3f(0, 90, 0), Vector3f(1.2,1,3));
+	road2 = Road(Vector3f(32, -1, -68), Vector3f(0, 0, 0), Vector3f(2, 1, 1.2));
+	road3 = Road(Vector3f(63, -1, -24), Vector3f(0, 90, 0), Vector3f(1.2, 1, 3.1));
+	road4 = Road(Vector3f(37, -1, 27), Vector3f(0, 0, 0), Vector3f(2, 1, 1.2));
+}
 
 //=======================================================================
 // OpengGL Configuration Function
@@ -510,8 +522,8 @@ void myInit(void)
 	box = Box();
 	coin = Coin();
 	tank = Tank();
-	building = Building();
-	road = Road();
+	declareBuildings();
+	declareRoads();
 }
 
 //=======================================================================
@@ -530,8 +542,13 @@ void myDisplay(void)
 	coin.draw();
 	tank.draw();
 	car.draw();
-	building.draw();
-	road.draw();
+	building1.draw();
+	building2.draw();
+	//road.draw();
+	road1.draw();
+	road2.draw();
+	road3.draw();
+	road4.draw();
 
 	//sky box
 	glPushMatrix();
