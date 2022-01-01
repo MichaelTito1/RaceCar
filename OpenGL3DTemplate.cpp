@@ -5,6 +5,9 @@
 #include <glut.h>
 #include <iostream>
 #include <string>
+#include <Windows.h>
+#include <mmsystem.h>
+
 
 #define DEG2RAD(a) (a * 0.0174532925)
 
@@ -14,6 +17,7 @@ int lives = 3;
 GLuint tex;
 char title[] = "3D Model Loader Sample";
 bool gameover = false, winner = false;
+double timeLeft = 300;
 
 // 3D Projection Options
 GLdouble fovy = 45;
@@ -148,7 +152,7 @@ void InitMaterial()
 //=======================================================================
 void RenderGround()
 {
-	glDisable(GL_LIGHTING);	// Disable lighting 
+	//glDisable(GL_LIGHTING);	// Disable lighting 
 
 	glColor3f(0.6, 0.6, 0.6);	// Dim the ground texture a bit
 
@@ -171,15 +175,17 @@ void RenderGround()
 	glEnd();
 	glPopMatrix();
 
-	glEnable(GL_LIGHTING);	// Enable lighting again for other entites coming throung the pipeline.
+	//glEnable(GL_LIGHTING);	// Enable lighting again for other entites coming throung the pipeline.
 
 	glColor3f(1, 1, 1);	// Set material back to white instead of grey used for the ground texture.
 }
+
 
 // for collision detection
 float distance(float x1, float z1, float x2, float z2) {
 	return (x1 - x2) * (x1 - x2) + (z1 - z2) * (z1 - z2);
 }
+
 
 class Car {
 public:
@@ -311,6 +317,8 @@ public:
 				distance(position.x, position.z, carBackCenter.x, carBackCenter.z) <= 3) {
 				//detected collision with the car
 				visible = false;
+				lives--;
+				PlaySound(TEXT("sound/hit.wav"), NULL, SND_ASYNC);
 			}
 		}
 	}
@@ -358,12 +366,12 @@ public:
 				//detected collision with the car
 				visible = false;
 				car.score++;
+				PlaySound(TEXT("sound/point.wav"), NULL, SND_ASYNC);
 			}
 		}
 	}
 
 };
-
 
 class Tank {
 public:
@@ -406,12 +414,12 @@ public:
 				//detected collision with the car
 				visible = false;
 				car.gas = min(100, car.gas + 30);
+				PlaySound(TEXT("sound/point.wav"), NULL, SND_ASYNC);
 			}
 		}
 	}
 
 };
-
 
 class Road {
 public:
@@ -443,8 +451,49 @@ public:
 
 };
 
+class Tower {
+public:
+	Model_3DS model;
+	Vector3f position, rotation, scale;
 
+	Tower() {
+		model.Load("Models/city/buildings/3ds/001.3ds");
+		position = Vector3f(10, 1, 5);
+		rotation = Vector3f(0, 0, 0);
+		scale = Vector3f(1, 1, 1);
+	}
 
+	Tower(char* towerNum) {
+		char res[100];
+		strcpy(res, "Models/city/buildings/3ds/");
+		strcat(res, towerNum);
+		strcat(res, ".3ds");
+		model.Load(res);
+		position = Vector3f(17, 0, 5);
+		rotation = Vector3f(0, 0, 0);
+		scale = Vector3f(1, 1, 1);
+	}
+	Tower(char* towerNum, Vector3f _position, Vector3f _rotation, Vector3f _scale) {
+		char res[100];
+		strcpy(res, "Models/city/buildings/3ds/");
+		strcat(res, towerNum);
+		strcat(res, ".3ds");
+		model.Load(res);
+		position = _position;
+		rotation = _rotation;
+		scale = _scale;
+	}
+	void draw() {
+		glPushMatrix();
+		glTranslated(position.x, position.y, position.z);
+		glScaled(scale.x, scale.y, scale.z);
+		glRotatef(rotation.z, 0, 0, 1);
+		glRotatef(180 + rotation.y, 0, 1, 0);
+		glRotatef(rotation.x, 1, 0, 0);
+		model.Draw();
+		glPopMatrix();
+	}
+};
 
 class Building {
 public:
@@ -498,6 +547,98 @@ public:
 		model.Draw();
 		glPopMatrix();
 	}
+};
+
+class Heart {
+public:
+	Model_3DS model;
+	Vector3f position, rotation, scale;
+	bool visible;
+	Heart() {
+		model.Load("Models/heart.3ds");
+		position = Vector3f(10, 1.3, -5);
+		rotation = Vector3f(90, -90, 0);
+		scale = Vector3f(0.2, 0.2, 0.2);
+		visible = true;
+	}
+	Heart(Vector3f _position, Vector3f _rotation, Vector3f _scale) {
+		model.Load("Models/heart.3ds");
+		position = _position;
+		rotation = _rotation;
+		scale = _scale;
+		visible = true;
+	}
+	void draw() {
+		if (visible) {
+			glColor3f(1, 0, 0);
+			glPopMatrix();
+			glPushMatrix();
+			glTranslated(position.x, position.y, position.z);
+			glScaled(scale.x, scale.y, scale.z);
+			glRotatef(rotation.z, 0, 0, 1);
+			glRotatef(rotation.y, 0, 1, 0);
+			glRotatef(rotation.x, 1, 0, 0);
+			model.Draw();
+			glPopMatrix();
+			glColor3f(1, 1, 1);
+
+			Vector3f carFrontCenter = car.position + car.lightDir;
+			Vector3f carBackCenter = car.position - car.lightDir;
+			if (distance(position.x, position.z, car.position.x, car.position.z) <= 4 ||
+				distance(position.x, position.z, carFrontCenter.x, carFrontCenter.z) <= 6 ||
+				distance(position.x, position.z, carBackCenter.x, carBackCenter.z) <= 3) {
+				//detected collision with the car
+				visible = false;
+			}
+		}
+	}
+
+};
+
+class Rock {
+public:
+	Model_3DS model;
+	Vector3f position, rotation, scale;
+	bool visible;
+	Rock() {
+		model.Load("Models/rock.3ds");
+		position = Vector3f(8, 0, -10);
+		rotation = Vector3f(0, 0, 0);
+		scale = Vector3f(0.07, 0.07, 0.07);
+		visible = true;
+	}
+	Rock(Vector3f _position, Vector3f _rotation, Vector3f _scale) {
+		model.Load("Models/rock.3ds");
+		position = _position;
+		rotation = _rotation;
+		scale = _scale;
+		visible = true;
+	}
+	void draw() {
+		if (visible) {
+			glColor3f(0.5, 0.2, 0);
+			glPopMatrix();
+			glPushMatrix();
+			glTranslated(position.x, position.y, position.z);
+			glScaled(scale.x, scale.y, scale.z);
+			glRotatef(rotation.z, 0, 0, 1);
+			glRotatef(rotation.y, 0, 1, 0);
+			glRotatef(rotation.x, 1, 0, 0);
+			model.Draw();
+			glPopMatrix();
+			glColor3f(1, 1, 1);
+
+			Vector3f carFrontCenter = car.position + car.lightDir;
+			Vector3f carBackCenter = car.position - car.lightDir;
+			if (distance(position.x + 2, position.z - 4, car.position.x, car.position.z) <= 3 ||
+				distance(position.x + 2, position.z - 4, carFrontCenter.x, carFrontCenter.z) <= 4 ||
+				distance(position.x + 2, position.z - 4, carBackCenter.x, carBackCenter.z) <= 3) {
+				//detected collision with the car
+				visible = false;
+			}
+		}
+	}
+
 };
 
 
@@ -564,8 +705,7 @@ void setupLights() {
 }
 
 
-
-Box box;
+Box box, box2;
 Coin coin , coin2;
 Tank tank;
 Road road;
@@ -590,10 +730,11 @@ void myInit(void)
 	glEnable(GL_NORMALIZE);
 
 	car = Car();
-	box = Box();
+	box = Box(Vector3f(0, 0, -20), Vector3f(0, 0, 0), Vector3f(4, 4, 4));
+	box2 = Box(Vector3f(62, 0, 6), Vector3f(0, 0, 0), Vector3f(3, 3, 3));
 	coin = Coin(Vector3f(3, 1, 7), Vector3f(0, 0, 90), Vector3f(1, 1, 1));
 	coin2 = Coin(Vector3f(0, 1, -5), Vector3f(0, 0, 90), Vector3f(1, 1, 1));
-	tank = Tank(Vector3f(8, 4, -35), Vector3f(0, 45, 0), Vector3f(0.03, 0.03, 0.03));
+	tank = Tank(Vector3f(8, 4, -45), Vector3f(0, 45, 0), Vector3f(0.03, 0.03, 0.03));
 	road = Road(Vector3f(0, -1, -20), Vector3f(0, 90, 0), Vector3f(2.5, 1, 5));
 	//building = Building();
 	tree = Tree();
@@ -626,7 +767,8 @@ void myDisplay(void)
 	tank.draw();
 	road.draw();
 	//building.draw();
-
+	box.draw();
+	//box2.draw();
 	
 
 	//drawing the trees on the right side 
@@ -747,7 +889,7 @@ void myDisplay(void)
 	glBindTexture(GL_TEXTURE_2D, tex);
 	gluQuadricTexture(qobj, true);
 	gluQuadricNormals(qobj, GL_SMOOTH);
-	gluSphere(qobj, 100, 100, 100);
+	gluSphere(qobj, 200, 200, 200); // changed from 100 to 200 (original value was 100)
 	gluDeleteQuadric(qobj);
 
 
