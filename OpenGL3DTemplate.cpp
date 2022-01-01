@@ -325,7 +325,7 @@ public:
 		visible = true;
 	}
 	Coin(Vector3f _position, Vector3f _rotation, Vector3f _scale) {
-		model.Load("Models/coin.3ds");
+		model.Load("Models/coin2.3ds");
 		position = _position;
 		rotation = _rotation;
 		scale = _scale;
@@ -394,8 +394,100 @@ public:
 			Vector3f carFrontCenter = car.position + car.lightDir;
 			Vector3f carBackCenter = car.position - car.lightDir;
 			if (distance(position.x - 5, position.z + 12, car.position.x, car.position.z) <= 2 ||
-				distance(position.x - 5, position.z + 12, carFrontCenter.x, carFrontCenter.z) <= 3 ||
+				distance(position.x - 5, position.z + 12, carFrontCenter.x, carFrontCenter.z) <= 5 ||
 				distance(position.x - 5, position.z + 12, carBackCenter.x, carBackCenter.z) <= 2) {
+				//detected collision with the car
+				visible = false;
+			}
+		}
+	}
+
+};
+
+class Heart {
+public:
+	Model_3DS model;
+	Vector3f position, rotation, scale;
+	bool visible;
+	Heart() {
+		model.Load("Models/heart.3ds");
+		position = Vector3f(10, 1.3, -5);
+		rotation = Vector3f(90, -90, 0);
+		scale = Vector3f(0.2,0.2,0.2);
+		visible = true;
+	}
+	Heart(Vector3f _position, Vector3f _rotation, Vector3f _scale) {
+		model.Load("Models/heart.3ds");
+		position = _position;
+		rotation = _rotation;
+		scale = _scale;
+		visible = true;
+	}
+	void draw() {
+		if (visible) {
+			glColor3f(1, 0, 0);
+			glPopMatrix();
+			glPushMatrix();
+			glTranslated(position.x, position.y, position.z);
+			glScaled(scale.x, scale.y, scale.z);
+			glRotatef(rotation.z, 0, 0, 1);
+			glRotatef(rotation.y, 0, 1, 0);
+			glRotatef(rotation.x, 1, 0, 0);
+			model.Draw();
+			glPopMatrix();
+			glColor3f(1, 1, 1);
+
+			Vector3f carFrontCenter = car.position + car.lightDir;
+			Vector3f carBackCenter = car.position - car.lightDir;
+			if (distance(position.x, position.z, car.position.x, car.position.z) <= 4 ||
+				distance(position.x, position.z, carFrontCenter.x, carFrontCenter.z) <= 6 ||
+				distance(position.x, position.z, carBackCenter.x, carBackCenter.z) <= 3) {
+				//detected collision with the car
+				visible = false;
+			}
+		}
+	}
+
+};
+
+class Rock {
+public:
+	Model_3DS model;
+	Vector3f position, rotation, scale;
+	bool visible;
+	Rock() {
+		model.Load("Models/rock.3ds");
+		position = Vector3f(8, 0, -10);
+		rotation = Vector3f(0, 0, 0);
+		scale = Vector3f(0.07,0.07,0.07);
+		visible = true;
+	}
+	Rock(Vector3f _position, Vector3f _rotation, Vector3f _scale) {
+		model.Load("Models/rock.3ds");
+		position = _position;
+		rotation = _rotation;
+		scale = _scale;
+		visible = true;
+	}
+	void draw() {
+		if (visible) {
+			glColor3f(0.5, 0.2, 0);
+			glPopMatrix();
+			glPushMatrix();
+			glTranslated(position.x, position.y, position.z);
+			glScaled(scale.x, scale.y, scale.z);
+			glRotatef(rotation.z, 0, 0, 1);
+			glRotatef(rotation.y, 0, 1, 0);
+			glRotatef(rotation.x, 1, 0, 0);
+			model.Draw();
+			glPopMatrix();
+			glColor3f(1, 1, 1);
+
+			Vector3f carFrontCenter = car.position + car.lightDir;
+			Vector3f carBackCenter = car.position - car.lightDir;
+			if (distance(position.x+2, position.z-4, car.position.x, car.position.z) <= 3 ||
+				distance(position.x+2, position.z-4, carFrontCenter.x, carFrontCenter.z) <= 4 ||
+				distance(position.x+2, position.z-4, carBackCenter.x, carBackCenter.z) <= 3) {
 				//detected collision with the car
 				visible = false;
 			}
@@ -427,6 +519,8 @@ void setupCamera() {
 Box box;
 Coin coin;
 Tank tank;
+Heart heart;
+Rock rock;
 
 
 //=======================================================================
@@ -446,6 +540,8 @@ void myInit(void)
 	box = Box();
 	coin = Coin();
 	tank = Tank();
+	heart = Heart();
+	rock = Rock();
 }
 
 //=======================================================================
@@ -464,6 +560,8 @@ void myDisplay(void)
 	coin.draw();
 	tank.draw();
 	car.draw();
+	heart.draw();
+	rock.draw();
 
 
 	//sky box
@@ -600,13 +698,13 @@ void time(int val) {
 	if (coin.rotation.x == 0) coin.rotation.x = 360;
 	coin.rotation.x -= 2;
 
-	/*car.sirenX -= car.position.x;
-	car.sirenZ -= car.position.z;*/
+	if (heart.rotation.y == 0) heart.rotation.y = 360;
+	heart.rotation.y -= 2;
+
+	
 	float xTmp = car.sirenX, zTmp = car.sirenZ;
 	car.sirenX = xTmp * 0.9961946981  - zTmp * 0.08715574275; //rotate -5 degrees
 	car.sirenZ = xTmp * 0.08715574275 + zTmp * 0.9961946981;
-	/*car.sirenX += car.position.x;
-	car.sirenZ += car.position.z;*/
 
 
 	glutPostRedisplay();
