@@ -517,6 +517,8 @@ public:
 
 
 
+
+
 void setupCamera() {
 	glMatrixMode(GL_PROJECTION);
 
@@ -583,9 +585,7 @@ Tank tank;
 Road road;
 Building building;
 Tree tree;
-Tree tree1;
-Tree tree2;
-Tree tree3;
+
 
 
 //=======================================================================
@@ -610,9 +610,7 @@ void myInit(void)
 	road = Road();
 	building = Building();
 	tree = Tree();
-	tree1 = Tree();
-	tree2 = Tree();
-	tree3 = Tree();
+	
 	
 }
 
@@ -644,37 +642,103 @@ void myDisplay(void)
 	//drawing the trees on the right side 
 	//tree.draw();
 
-	glPushMatrix();
+	/*glPushMatrix();
 	glTranslated(5, 0, 2);
+	tree.draw();
+	glPopMatrix();*/
+
+	glPushMatrix();
+	glTranslated(5, 0, -10);
 	tree.draw();
 	glPopMatrix();
 
+	glPushMatrix();
+	glTranslated(5, 0, -25);
+	tree.draw();
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(20, 0, -10);
+	tree.draw();
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(20, 0, -25);
+	tree.draw();
+	glPopMatrix();
+
+
+	glPushMatrix();
 	glTranslated(5, 0, 10);
 	tree.draw();
 	glPopMatrix();
 
+	glPushMatrix();
+	glTranslated(5, 0, 25);
+	tree.draw();
+	glPopMatrix();
 
-	
 
-	
+	glPushMatrix();
+	glTranslated(5, 0, 40);
+	tree.draw();
+	glPopMatrix();
 
+	glPushMatrix();
+	glTranslated(5, 0, 55);
+	tree.draw();
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(20, 0, 55);
+	tree.draw();
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(20, 0, 40);
+	tree.draw();
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(20, 0, 25);
+	tree.draw();
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(20, 0, 10);
+	tree.draw();
+	glPopMatrix();
 
 
 	
 	
 	//////////////////////////////////////
+	//drawing the trees on the left side
+
 	glPushMatrix();
-	glTranslated(-20, 0, 10);
+	glTranslated(-30, 0, -10);
 	tree.draw();
 	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(-30, 0,-20);
+	tree.draw();
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(-20, 0, -10);
+	tree.draw();
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(-20, 0, -20);
+	tree.draw();
+	glPopMatrix();
+
+
 
 	glPushMatrix();
 	glTranslated(-30, 0, 10);
-	tree.draw();
-	glPopMatrix();
-
-	glPushMatrix();
-	glTranslated(-40, 0, 10);
 	tree.draw();
 	glPopMatrix();
 
@@ -692,6 +756,34 @@ void myDisplay(void)
 	glTranslated(-30, 0, 40);
 	tree.draw();
 	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(-20, 0, 10);
+	tree.draw();
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(-20, 0, 20);
+	tree.draw();
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(-20, 0, 30);
+	tree.draw();
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(-20, 0, 40);
+	tree.draw();
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(-20, 0, 55);
+	tree.draw();
+	glPopMatrix();
+
+	
+	
 
 
 	
