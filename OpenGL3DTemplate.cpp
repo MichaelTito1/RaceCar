@@ -614,7 +614,7 @@ void setupCamera() {
 Heart heart;
 Rock rock1, rock2;
 Box box, box2;
-Coin coin, coin2;
+Coin coin, coin2, coin3, coin4;
 Tank tank;
 Road road1, road2, road3, road4;
 Tower tower1, tower2, tower3, tower4;
@@ -627,10 +627,10 @@ void declareBuildings() {
 }
 
 void declareRoads() {
-	road1 = Road(Vector3f(0, -1, -25), Vector3f(0, 90, 0), Vector3f(1.8,1,3));
+	road1 = Road(Vector3f(0, -1, -19), Vector3f(0, 90, 0), Vector3f(1.8,1,2.95));
 	road2 = Road(Vector3f(32, -1, -68), Vector3f(0, 0, 0), Vector3f(2, 1, 1.8));
-	road3 = Road(Vector3f(63, -1, -24), Vector3f(0, 90, 0), Vector3f(1.8, 1, 3.1));
-	road4 = Road(Vector3f(37, -1, 24), Vector3f(0, 0, 0), Vector3f(2.2, 1, 1.8));
+	road3 = Road(Vector3f(65, -1, -24), Vector3f(0, 90, 0), Vector3f(1.8, 1, 3.1));
+	road4 = Road(Vector3f(35, -1, 24), Vector3f(0, 0, 0), Vector3f(1.8, 1, 1.8));
 }
 
 //=======================================================================
@@ -648,12 +648,14 @@ void myInit(void)
 
 	car = Car();
 	box = Box(Vector3f(0, 0, -17), Vector3f(0, 0, 0), Vector3f(4, 4, 4));
-	box2 = Box(Vector3f(62, 0, 6), Vector3f(0, 0, 0), Vector3f(4, 4, 4));
-	heart = Heart(Vector3f(65, 1.3, -17), Vector3f(0, 0, 0), Vector3f(0.2, 0.2, 0.2));
+	box2 = Box(Vector3f(64, 0, 6), Vector3f(0, 0, 0), Vector3f(4, 4, 4));
+	heart = Heart(Vector3f(67, 1.3, -17), Vector3f(0, 0, 0), Vector3f(0.2, 0.2, 0.2));
 	rock1 = Rock(Vector3f(62, 0, -1), Vector3f(0, 0, 0), Vector3f(0.07, 0.07, 0.07));
 	rock2 = Rock(Vector3f(62, 0, -50), Vector3f(0, 0, 0), Vector3f(0.07, 0.07, 0.07));
 	coin = Coin(Vector3f(0, 1, 7), Vector3f(0, 0, 90), Vector3f(1, 1, 1));
 	coin2 = Coin(Vector3f(33, 1, -66), Vector3f(0, 0, 90), Vector3f(1, 1, 1));
+	coin3 = Coin(Vector3f(47, 1, -66), Vector3f(0, 0, 90), Vector3f(1, 1, 1));
+	coin4 = Coin(Vector3f(14, 1, 25), Vector3f(0, 0, 90), Vector3f(1, 1, 1));
 	tank = Tank(Vector3f(47, 4, 13), Vector3f(0, 45, 0), Vector3f(0.03, 0.03, 0.03));
 	declareBuildings();
 	declareRoads();
@@ -677,6 +679,8 @@ void myDisplay(void)
 	box2.draw();
 	coin.draw();
 	coin2.draw();
+	coin3.draw();
+	coin4.draw();
 	tank.draw();
 	car.draw();
 	// building draw
@@ -850,14 +854,14 @@ void time(int val) {
 
 	// check if out of boundaries
 	int x = car.position.x, z = car.position.z;
-	if( timeLeft <= 0 || (x > 4 && x < 60 && z >= -62 && z < 20) || !(x > -3.2 && x < 68 && z > -70 && z < 30) ) {
+	if( timeLeft <= 0 || (x > 4 && x < 60 && z >= -62 && z < 20) || !(x > -3.2 && x < 71 && z > -72 && z < 28) ) {
 		if(lives > 0) 
 			PlaySound(TEXT("sound/die.wav"), NULL, SND_ASYNC);
 		lives = 0; // game over if out of the track boundaries
 	}
 
-	// check if the player reached the finish line
-	if (lives > 0 && car.gas > 0 && (x > 4.5 && x < 5.5 && z > 21 && z < 29))
+	// check if the player collected all coins
+	if (lives > 0 && car.gas > 0 && car.score == 4 /*(x > 4.5 && x < 5.5 && z > 21 && z < 29)*/)
 		winner = 1;
 	if (car.speed != 0) {
 		Vector3f deltaD = (car.front - car.position).unit() * car.speed;
@@ -874,6 +878,12 @@ void time(int val) {
 
 	if (coin2.rotation.x == 0) coin2.rotation.x = 360;
 	coin2.rotation.x -= 2;
+
+	if (coin3.rotation.x == 0) coin3.rotation.x = 360;
+	coin3.rotation.x -= 2;
+
+	if (coin4.rotation.x == 0) coin4.rotation.x = 360;
+	coin4.rotation.x -= 2;
 
 	if (heart.rotation.y == 0) heart.rotation.y = 360;
 	heart.rotation.y -= 2;
