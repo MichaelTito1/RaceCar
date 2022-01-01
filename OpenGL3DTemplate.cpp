@@ -187,6 +187,9 @@ class Car {
 public:
 	Model_3DS model;
 	Vector3f position, rotation, scale, front, lightDir, auxAxix;
+	int score = 0;
+	double gas = 100; // min=0, max=100
+
 	float speed, sirenX, sirenZ;
 	Car() {
 		model.Load("Models/car/car.3ds");
@@ -356,6 +359,7 @@ public:
 				distance(position.x, position.z, carBackCenter.x, carBackCenter.z) <= 3) {
 				//detected collision with the car
 				visible = false;
+				car.score++;
 			}
 		}
 	}
@@ -402,6 +406,7 @@ public:
 				distance(position.x - 5, position.z + 12, carBackCenter.x, carBackCenter.z) <= 2) {
 				//detected collision with the car
 				visible = false;
+				car.gas = min(100, car.gas + 30);
 			}
 		}
 	}
@@ -606,10 +611,12 @@ void myKeyboard(unsigned char button, int x, int y)
 		switch (button)
 		{
 		case 'w':
+			car.gas = max(0, car.gas- 0.3);
 			car.speed += 0.05;
 			if (car.speed > 0.5) car.speed = 0.5;
 			break;
 		case 's':
+			car.gas = max(0, car.gas - 0.3);
 			car.speed -= 0.05;
 			if (car.speed < -0.2) car.speed = -0.2;
 			break;
@@ -709,14 +716,19 @@ void output(std::string string1, float x, float y, float z)
 
 void time(int val) {
 	// check if out of lives 
-	if (lives <= 0) {
+	if (lives <= 0 || car.gas <= 0) {
 		gameover = 1;
-		output("Game Over", car.position.x, 0, car.position.z); // not working
+		output("Game Over", car.position.x, 0, car.position.z); // TODO: not working
 	}
 
+	// if out of gas, decrement lives and give some more gas to the player
+	if (car.gas <= 0) {
+		lives--;
+		car.gas = 30;
+	}
 	// check if out of boundaries
 	int x = car.position.x, z = car.position.z;
-	if( (x > 3 && x < 61 && z > -66 && z < 26) || !(x > -1.5 && x < 66 && z > -70 && z < 30) ) {
+	if( (x > 4.5 && x < 61 && z >= -64 && z < 26) || !(x > -1.5 && x < 66 && z > -70 && z < 30) ) {
 		
 		lives = 0; // game over if out of the track boundaries
 	}
@@ -745,7 +757,7 @@ void time(int val) {
 	/*car.sirenX += car.position.x;
 	car.sirenZ += car.position.z;*/
 
-	std::cout << car.position.x << ' ' << car.position.z << '\n';
+	std::cout << car.position.x << ' ' << car.position.z << ' ' << car.score << ' ' << car.gas << '\n';
 
 	glutPostRedisplay();
 	glutTimerFunc(10, time, 0);
