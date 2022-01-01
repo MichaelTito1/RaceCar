@@ -13,7 +13,7 @@ int HEIGHT = 700;
 int lives = 3;
 GLuint tex;
 char title[] = "3D Model Loader Sample";
-bool gameover = false;
+bool gameover = false, winner = false;
 
 // 3D Projection Options
 GLdouble fovy = 45;
@@ -511,7 +511,6 @@ Box box;
 Coin coin, coin2;
 Tank tank;
 Road road1, road2, road3, road4;
-//Building building1, building2;
 Tower tower1, tower2, tower3, tower4;
 
 void declareBuildings() {
@@ -605,7 +604,7 @@ void myDisplay(void)
 //=======================================================================
 void myKeyboard(unsigned char button, int x, int y)
 {
-	if (!gameover) {
+	if (!gameover && !winner) {
 		float frontX, frontZ;
 		Vector3f eye, center;
 		switch (button)
@@ -715,6 +714,11 @@ void output(std::string string1, float x, float y, float z)
 }
 
 void time(int val) {
+	// check if winner
+	if (winner) {
+		output("Winner!", 0, 0, 0); // TODO: not working
+	}
+
 	// check if out of lives 
 	if (lives <= 0 || car.gas <= 0) {
 		gameover = 1;
@@ -726,6 +730,7 @@ void time(int val) {
 		lives--;
 		car.gas = 30;
 	}
+
 	// check if out of boundaries
 	int x = car.position.x, z = car.position.z;
 	if( (x > 4.5 && x < 61 && z >= -64 && z < 26) || !(x > -1.5 && x < 66 && z > -70 && z < 30) ) {
@@ -733,6 +738,9 @@ void time(int val) {
 		lives = 0; // game over if out of the track boundaries
 	}
 
+	// check if the player reached the finish line
+	if (lives > 0 && car.gas > 0 && (x > 1.5 && x < 4 && z > 25 && z < 29))
+		winner = 1;
 	if (car.speed != 0) {
 		Vector3f deltaD = (car.front - car.position).unit() * car.speed;
 		car.position = car.position + deltaD;
