@@ -5,6 +5,9 @@
 #include <glut.h>
 #include <iostream>
 #include <string>
+#include <Windows.h>
+#include <mmsystem.h>
+
 
 #define DEG2RAD(a) (a * 0.0174532925)
 
@@ -14,6 +17,7 @@ int lives = 3;
 GLuint tex;
 char title[] = "3D Model Loader Sample";
 bool gameover = false, winner = false;
+double timeLeft = 300;
 
 // 3D Projection Options
 GLdouble fovy = 45;
@@ -313,6 +317,8 @@ public:
 				distance(position.x, position.z, carBackCenter.x, carBackCenter.z) <= 3){
 				//detected collision with the car
 				visible = false;
+				lives--;	
+				PlaySound(TEXT("sound/hit.wav"), NULL, SND_ASYNC);
 			}
 		}
 	}
@@ -360,6 +366,7 @@ public:
 				//detected collision with the car
 				visible = false;
 				car.score++;
+				PlaySound(TEXT("sound/point.wav"), NULL, SND_ASYNC);
 			}
 		}
 	}
@@ -407,6 +414,7 @@ public:
 				//detected collision with the car
 				visible = false;
 				car.gas = min(100, car.gas + 30);
+				PlaySound(TEXT("sound/point.wav"), NULL, SND_ASYNC);
 			}
 		}
 	}
@@ -461,7 +469,7 @@ public:
 		strcat(res, towerNum);
 		strcat(res, ".3ds");
 		model.Load(res);
-		position = Vector3f(10, 0, 5);
+		position = Vector3f(17, 0, 5);
 		rotation = Vector3f(0, 0, 0);
 		scale = Vector3f(1, 1, 1);
 	}
@@ -507,7 +515,7 @@ void setupCamera() {
 }
 
 
-Box box;
+Box box, box2;
 Coin coin, coin2;
 Tank tank;
 Road road1, road2, road3, road4;
@@ -516,15 +524,15 @@ Tower tower1, tower2, tower3, tower4;
 void declareBuildings() {
 	tower1 = Tower("001");
 	tower2 = Tower("002", Vector3f(45, 0, 10), Vector3f(0, 90, 0), Vector3f(1, 1, 1));
-	tower3 = Tower("003", Vector3f(15, 0, -40), Vector3f(0, 90, 0), Vector3f(1, 1, 1));
+	tower3 = Tower("003", Vector3f(17, 0, -40), Vector3f(0, 90, 0), Vector3f(1, 1, 1));
 	tower4 = Tower("004",Vector3f(45, 0, -40), Vector3f(0, 90, 0), Vector3f(1, 1, 1));
 }
 
 void declareRoads() {
-	road1 = Road(Vector3f(0, -1, -20), Vector3f(0, 90, 0), Vector3f(1.2,1,3));
-	road2 = Road(Vector3f(32, -1, -68), Vector3f(0, 0, 0), Vector3f(2, 1, 1.2));
-	road3 = Road(Vector3f(63, -1, -24), Vector3f(0, 90, 0), Vector3f(1.2, 1, 3.1));
-	road4 = Road(Vector3f(37, -1, 27), Vector3f(0, 0, 0), Vector3f(2, 1, 1.2));
+	road1 = Road(Vector3f(0, -1, -25), Vector3f(0, 90, 0), Vector3f(1.8,1,3));
+	road2 = Road(Vector3f(32, -1, -68), Vector3f(0, 0, 0), Vector3f(2, 1, 1.8));
+	road3 = Road(Vector3f(63, -1, -24), Vector3f(0, 90, 0), Vector3f(1.8, 1, 3.1));
+	road4 = Road(Vector3f(37, -1, 24), Vector3f(0, 0, 0), Vector3f(2.2, 1, 1.8));
 }
 
 //=======================================================================
@@ -541,10 +549,12 @@ void myInit(void)
 	glEnable(GL_NORMALIZE);
 
 	car = Car();
-	box = Box();
+	box = Box(Vector3f(0, 0, -17), Vector3f(0, 0, 0), Vector3f(3, 3, 3));
+	box2 = Box(Vector3f(62, 0, 6), Vector3f(0, 0, 0), Vector3f(3, 3, 3));
+
 	coin = Coin(Vector3f(0, 1, 7), Vector3f(0, 0, 90), Vector3f(1, 1, 1));
 	coin2 = Coin(Vector3f(33, 1, -66), Vector3f(0, 0, 90), Vector3f(1, 1, 1));
-	tank = Tank(Vector3f(47, 4, 17), Vector3f(0, 45, 0), Vector3f(0.03, 0.03, 0.03));
+	tank = Tank(Vector3f(47, 4, 13), Vector3f(0, 45, 0), Vector3f(0.03, 0.03, 0.03));
 	declareBuildings();
 	declareRoads();
 }
@@ -562,6 +572,7 @@ void myDisplay(void)
 
 	
 	box.draw();
+	box2.draw();
 	coin.draw();
 	coin2.draw();
 	tank.draw();
@@ -714,13 +725,14 @@ void output(std::string string1, float x, float y, float z)
 }
 
 void time(int val) {
+	timeLeft = max(timeLeft - 0.01, 0);
 	// check if winner
 	if (winner) {
 		output("Winner!", 0, 0, 0); // TODO: not working
 	}
 
 	// check if out of lives 
-	if (lives <= 0 || car.gas <= 0) {
+	if (lives <= 0) {
 		gameover = 1;
 		output("Game Over", car.position.x, 0, car.position.z); // TODO: not working
 	}
@@ -733,13 +745,13 @@ void time(int val) {
 
 	// check if out of boundaries
 	int x = car.position.x, z = car.position.z;
-	if( (x > 4.5 && x < 61 && z >= -64 && z < 26) || !(x > -1.5 && x < 66 && z > -70 && z < 30) ) {
-		
+	if( timeLeft <= 0 || (x > 4.7 && x < 60 && z >= -64 && z < 26) || !(x > -3.2 && x < 68 && z > -70 && z < 30) ) {
+		PlaySound(TEXT("sound/die.wav"), NULL, SND_ASYNC);
 		lives = 0; // game over if out of the track boundaries
 	}
 
 	// check if the player reached the finish line
-	if (lives > 0 && car.gas > 0 && (x > 1.5 && x < 4 && z > 25 && z < 29))
+	if (lives > 0 && car.gas > 0 && (x > 4.5 && x < 5.5 && z > 21 && z < 29))
 		winner = 1;
 	if (car.speed != 0) {
 		Vector3f deltaD = (car.front - car.position).unit() * car.speed;
@@ -765,7 +777,7 @@ void time(int val) {
 	/*car.sirenX += car.position.x;
 	car.sirenZ += car.position.z;*/
 
-	std::cout << car.position.x << ' ' << car.position.z << ' ' << car.score << ' ' << car.gas << '\n';
+	std::cout << car.position.x << ' ' << car.position.z << ' ' << car.score << ' ' << car.gas << ' ' << timeLeft << '\n';
 
 	glutPostRedisplay();
 	glutTimerFunc(10, time, 0);
