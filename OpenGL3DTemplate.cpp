@@ -593,7 +593,7 @@ void myInit(void)
 	box = Box();
 	coin = Coin(Vector3f(3, 1, 7), Vector3f(0, 0, 90), Vector3f(1, 1, 1));
 	coin2 = Coin(Vector3f(0, 1, -5), Vector3f(0, 0, 90), Vector3f(1, 1, 1));
-	tank = Tank(Vector3f(10, 4, -10), Vector3f(0, 45, 0), Vector3f(0.03, 0.03, 0.03));
+	tank = Tank(Vector3f(8, 4, -35), Vector3f(0, 45, 0), Vector3f(0.03, 0.03, 0.03));
 	road = Road(Vector3f(0, -1, -20), Vector3f(0, 90, 0), Vector3f(2.5, 1, 5));
 	//building = Building();
 	tree = Tree();
