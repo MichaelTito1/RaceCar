@@ -4,6 +4,7 @@
 #include <math.h>
 #include <glut.h>
 #include <iostream>
+#include <string>
 
 #define DEG2RAD(a) (a * 0.0174532925)
 
@@ -467,7 +468,49 @@ public:
 	}
 };
 
-//class 
+class Tower {
+public:
+	Model_3DS model;
+	Vector3f position, rotation, scale;
+
+	Tower() {
+		model.Load("Models/city/buildings/3ds/001.3ds");
+		position = Vector3f(10, 1, 5);
+		rotation = Vector3f(0, 0, 0);
+		scale = Vector3f(1, 1, 1);
+	}
+
+	Tower(char* towerNum) {
+		char res[100];
+		strcpy(res, "Models/city/buildings/3ds/");
+		strcat(res, towerNum);
+		strcat(res, ".3ds");
+		model.Load(res);
+		position = Vector3f(10, 0, 5);
+		rotation = Vector3f(0, 0, 0);
+		scale = Vector3f(1, 1, 1);
+	}
+	Tower(char* towerNum, Vector3f _position, Vector3f _rotation, Vector3f _scale) {
+		char res[100];
+		strcpy(res, "Models/city/buildings/3ds/");
+		strcat(res, towerNum);
+		strcat(res, ".3ds");
+		model.Load(res);
+		position = _position;
+		rotation = _rotation;
+		scale = _scale;
+	}
+	void draw() {
+		glPushMatrix();
+		glTranslated(position.x, position.y, position.z);
+		glScaled(scale.x, scale.y, scale.z);
+		glRotatef(rotation.z, 0, 0, 1);
+		glRotatef(180 + rotation.y, 0, 1, 0);
+		glRotatef(rotation.x, 1, 0, 0);
+		model.Draw();
+		glPopMatrix();
+	}
+};
 
 void setupCamera() {
 	glMatrixMode(GL_PROJECTION);
@@ -493,11 +536,16 @@ Box box;
 Coin coin;
 Tank tank;
 Road road1, road2, road3, road4;
-Building building1, building2;
+//Building building1, building2;
+Tower tower1, tower2, tower3, tower4;
 
 void declareBuildings() {
-	building1 = Building(Vector3f(8, -1, 15), Vector3f(-90, 90, 0), Vector3f(2,2,2));
-	building2 = Building(Vector3f(20, -1, 15), Vector3f(90, 90, 0), Vector3f(1, 2, 2));
+	//building1 = Building(Vector3f(8, -1, 15), Vector3f(-90, 90, 0), Vector3f(2,2,2));
+	tower1 = Tower("001");
+	tower2 = Tower("002", Vector3f(45, 0, 10), Vector3f(0, 90, 0), Vector3f(1, 1, 1));
+	tower3 = Tower("003", Vector3f(15, 0, -40), Vector3f(0, 90, 0), Vector3f(1, 1, 1));
+	tower4 = Tower("004",Vector3f(45, 0, -40), Vector3f(0, 90, 0), Vector3f(1, 1, 1));
+	//building2 = Building(Vector3f(20, -1, 15), Vector3f(90, 90, 0), Vector3f(1, 2, 2));
 }
 
 void declareRoads() {
@@ -545,8 +593,11 @@ void myDisplay(void)
 	tank.draw();
 	car.draw();
 	// building draw
-	building1.draw();
-	building2.draw();
+	tower1.draw();
+	tower2.draw();
+	tower3.draw();
+	tower4.draw();
+
 	//road.draw();
 	road1.draw();
 	road2.draw();
@@ -674,11 +725,24 @@ void myKeyboard(unsigned char button, int x, int y)
 	glutPostRedisplay();
 }
 
+// prints text in 3D
+void output(std::string string1, float x, float y, float z)
+{
+	glColor3f(0, 0, 0);
+	glRasterPos3f(x, y, z);
+	int len, i;
+	len = string1.size();
+	for (i = 0; i < len; i++) {
+		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, string1[i]);
+	}
+}
 
 void time(int val) {
 	// check if out of lives 
-	if (lives <= 0)
-		gameover=1;
+	if (lives <= 0) {
+		gameover = 1;
+		output("Game Over", car.position.x, 0, car.position.z); // not working
+	}
 
 	// check if out of boundaries
 	int x = car.position.x, z = car.position.z;
