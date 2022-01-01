@@ -6,6 +6,16 @@
 #include <iostream>
 #include <string>
 
+#include <cmath>
+
+#include<windows.h>
+#include <mmsystem.h>
+
+
+
+
+
+
 #define DEG2RAD(a) (a * 0.0174532925)
 
 int WIDTH = 1200;
@@ -14,7 +24,8 @@ int lives = 3;
 GLuint tex;
 char title[] = "3D Model Loader Sample";
 bool gameover = false, winner = false;
-
+int Game_time = 120000;
+int onGameOver = 0;
 // 3D Projection Options
 GLdouble fovy = 45;
 GLdouble aspectRatio = (GLdouble)WIDTH / (GLdouble)HEIGHT;
@@ -505,6 +516,33 @@ void setupCamera() {
 
 	camera.look();
 }
+void output(std::string string1, float x, float y)
+{
+	glDisable(GL_TEXTURE_2D); //added this
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glColor3f(0, 0, 0);
+	glLoadIdentity();
+	gluOrtho2D(0.0, WIDTH, 0.0, HEIGHT);
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+	glRasterPos2i(x,y);
+	std::string s = "Some text";
+	void* font = GLUT_BITMAP_9_BY_15;
+	for (std::string::iterator i = s.begin(); i != s.end(); ++i)
+	{
+		char c = *i;
+		glColor3d(1.0, 0.0, 0.0);
+		glutBitmapCharacter(font, c);
+	}
+	glMatrixMode(GL_PROJECTION); //swapped this with...
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW); //...this
+	glPopMatrix();
+	//added this
+	glEnable(GL_TEXTURE_2D);
+}
 
 
 Box box;
@@ -593,6 +631,10 @@ void myDisplay(void)
 
 
 	glPopMatrix();
+	std::string time = "Remianing time : " + std::to_string(max(0, (int)(1.0 * (Game_time - onGameOver) / 1000))) + " Seconds";
+
+	//output(numerofgifts, 0.3, 1.7, 0.5);
+	output(time, -8, 7, 0.5);
 
 
 
@@ -702,18 +744,9 @@ void myKeyboard(unsigned char button, int x, int y)
 }
 
 // prints text in 3D
-void output(std::string string1, float x, float y, float z)
-{
-	glColor3f(0, 0, 0);
-	glRasterPos3f(x, y, z);
-	int len, i;
-	len = string1.size();
-	for (i = 0; i < len; i++) {
-		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, string1[i]);
-	}
-}
 
 void time(int val) {
+	onGameOver += 10;
 	// check if winner
 	if (winner) {
 		output("Winner!", 0, 0, 0); // TODO: not working
@@ -770,6 +803,8 @@ void time(int val) {
 	glutPostRedisplay();
 	glutTimerFunc(10, time, 0);
 }
+
+
 
 //=======================================================================
 // Main Function
