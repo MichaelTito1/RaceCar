@@ -662,7 +662,7 @@ void myDisplay(void)
 	glPopMatrix();
 
 
-	glPushMatrix();
+	/*glPushMatrix();
 	glTranslated(20, 0, -10);
 	tree.draw();
 	glPopMatrix();
@@ -671,6 +671,7 @@ void myDisplay(void)
 	glTranslated(20, 0, -25);
 	tree.draw();
 	glPopMatrix();
+	*/
 
 
 	glPushMatrix();
@@ -694,7 +695,7 @@ void myDisplay(void)
 	tree.draw();
 	glPopMatrix();
 
-	glPushMatrix();
+	/*glPushMatrix();
 	glTranslated(20, 0, 55);
 	tree.draw();
 	glPopMatrix();
@@ -713,6 +714,7 @@ void myDisplay(void)
 	glTranslated(20, 0, 10);
 	tree.draw();
 	glPopMatrix();
+	*/
 
 
 	
@@ -723,7 +725,7 @@ void myDisplay(void)
 	// -30 the 2nd left line
 	
 
-	glPushMatrix();
+	/*glPushMatrix();
 	glTranslated(-30, 0, -10);
 	tree.draw();
 	glPopMatrix();
@@ -732,6 +734,7 @@ void myDisplay(void)
 	glTranslated(-30, 0,-20);
 	tree.draw();
 	glPopMatrix();
+	*/
 
 	glPushMatrix();
 	glTranslated(-20, 0, -10);
@@ -754,7 +757,7 @@ void myDisplay(void)
 	glPopMatrix();
 
 
-	glPushMatrix();
+	/*glPushMatrix();
 	glTranslated(-30, 0, 10);
 	tree.draw();
 	glPopMatrix();
@@ -773,6 +776,7 @@ void myDisplay(void)
 	glTranslated(-30, 0, 40);
 	tree.draw();
 	glPopMatrix();
+	*/
 
 	glPushMatrix();
 	glTranslated(-20, 0, 10);
