@@ -630,12 +630,16 @@ void myDisplay(void)
 	
 
 	//drawing the trees on the right side 
-	//tree.draw();
+	// the 5 value in x coordinates represent the first right line of trees
+	// 20 value is the second line to the right
 
 	/*glPushMatrix();
 	glTranslated(5, 0, 2);
 	tree.draw();
 	glPopMatrix();*/
+
+
+	
 
 	glPushMatrix();
 	glTranslated(5, 0, -10);
@@ -646,6 +650,17 @@ void myDisplay(void)
 	glTranslated(5, 0, -25);
 	tree.draw();
 	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(5, 0, -40);
+	tree.draw();
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(5, 0, -55);
+	tree.draw();
+	glPopMatrix();
+
 
 	glPushMatrix();
 	glTranslated(20, 0, -10);
@@ -704,6 +719,9 @@ void myDisplay(void)
 	
 	//////////////////////////////////////
 	//drawing the trees on the left side
+	// lines with -20 value in x corresponding to first left line
+	// -30 the 2nd left line
+	
 
 	glPushMatrix();
 	glTranslated(-30, 0, -10);
@@ -725,6 +743,15 @@ void myDisplay(void)
 	tree.draw();
 	glPopMatrix();
 
+	glPushMatrix();
+	glTranslated(-20, 0, -35);
+	tree.draw();
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(-20, 0, -50);
+	tree.draw();
+	glPopMatrix();
 
 
 	glPushMatrix();
