@@ -329,7 +329,7 @@ public:
 		visible = true;
 	}
 	Coin(Vector3f _position, Vector3f _rotation, Vector3f _scale) {
-		model.Load("Models/coin.3ds");
+		model.Load("Models/coin2.3ds");
 		position = _position;
 		rotation = _rotation;
 		scale = _scale;
@@ -408,7 +408,6 @@ public:
 
 };
 
-// TODO: find model
 class Road {
 public:
 	Model_3DS model;
@@ -437,35 +436,6 @@ public:
 		glPopMatrix();
 	}
 
-};
-
-class Building {
-public:
-	Model_3DS model;
-	Vector3f position, rotation, scale;
-
-	Building() {
-		model.Load("Models/house/house.3ds");
-		position = Vector3f(8, -1, 5);
-		rotation = Vector3f(90, 90, 0);
-		scale = Vector3f(2, 2, 2);
-	}
-	Building(Vector3f _position, Vector3f _rotation, Vector3f _scale) {
-		model.Load("Models/house/house.3ds");
-		position = _position;
-		rotation = _rotation;
-		scale = _scale;
-	}
-	void draw() {
-		glPushMatrix();
-		glTranslated(position.x, position.y, position.z);
-		glScaled(scale.x, scale.y, scale.z);
-		glRotatef(rotation.z, 0, 0, 1);
-		glRotatef(180 + rotation.y, 0, 1, 0);
-		glRotatef(rotation.x, 1, 0, 0);
-		model.Draw();
-		glPopMatrix();
-	}
 };
 
 class Tower {
@@ -533,19 +503,17 @@ void setupCamera() {
 
 
 Box box;
-Coin coin;
+Coin coin, coin2;
 Tank tank;
 Road road1, road2, road3, road4;
 //Building building1, building2;
 Tower tower1, tower2, tower3, tower4;
 
 void declareBuildings() {
-	//building1 = Building(Vector3f(8, -1, 15), Vector3f(-90, 90, 0), Vector3f(2,2,2));
 	tower1 = Tower("001");
 	tower2 = Tower("002", Vector3f(45, 0, 10), Vector3f(0, 90, 0), Vector3f(1, 1, 1));
 	tower3 = Tower("003", Vector3f(15, 0, -40), Vector3f(0, 90, 0), Vector3f(1, 1, 1));
 	tower4 = Tower("004",Vector3f(45, 0, -40), Vector3f(0, 90, 0), Vector3f(1, 1, 1));
-	//building2 = Building(Vector3f(20, -1, 15), Vector3f(90, 90, 0), Vector3f(1, 2, 2));
 }
 
 void declareRoads() {
@@ -570,8 +538,9 @@ void myInit(void)
 
 	car = Car();
 	box = Box();
-	coin = Coin();
-	tank = Tank();
+	coin = Coin(Vector3f(0, 1, 7), Vector3f(0, 0, 90), Vector3f(1, 1, 1));
+	coin2 = Coin(Vector3f(33, 1, -66), Vector3f(0, 0, 90), Vector3f(1, 1, 1));
+	tank = Tank(Vector3f(47, 4, 17), Vector3f(0, 45, 0), Vector3f(0.03, 0.03, 0.03));
 	declareBuildings();
 	declareRoads();
 }
@@ -590,6 +559,7 @@ void myDisplay(void)
 	
 	box.draw();
 	coin.draw();
+	coin2.draw();
 	tank.draw();
 	car.draw();
 	// building draw
@@ -763,6 +733,9 @@ void time(int val) {
 
 	if (coin.rotation.x == 0) coin.rotation.x = 360;
 	coin.rotation.x -= 2;
+
+	if (coin2.rotation.x == 0) coin2.rotation.x = 360;
+	coin2.rotation.x -= 2;
 
 	/*car.sirenX -= car.position.x;
 	car.sirenZ -= car.position.z;*/
