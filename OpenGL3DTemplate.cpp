@@ -924,7 +924,7 @@ void myKeyboard(unsigned char button, int x, int y)
 			car.front.x += car.position.x; //translate back
 			car.front.z += car.position.z;
 			if (camera.fps) {
-				camera.eye = car.position + Vector3f(0, 5, 0);
+				camera.eye = car.position + Vector3f(0, 2, 0);
 				camera.center = car.front + (car.front - car.position) * 3;
 			}
 			else {
@@ -942,7 +942,7 @@ void myKeyboard(unsigned char button, int x, int y)
 			car.front.x += car.position.x; //translate back
 			car.front.z += car.position.z;
 			if (camera.fps) {
-				camera.eye = car.position + Vector3f(0, 5, 0);
+				camera.eye = car.position + Vector3f(0, 2, 0);
 				camera.center = car.front + (car.front - car.position) * 3;
 			}
 			else {
@@ -952,7 +952,7 @@ void myKeyboard(unsigned char button, int x, int y)
 			break;
 		case 'v': //switch between fps and tps
 			if (!camera.fps) {
-				camera.eye = car.position + Vector3f(0, 5, 0);
+				camera.eye = car.position + Vector3f(0, 2, 0);
 				camera.center = car.front + (car.front - car.position) * 3;
 			}
 			else {
@@ -1142,6 +1142,32 @@ void time(int val) {
 }
 
 //=======================================================================
+// Mouse Function
+//=======================================================================
+void myMouse(int button, int state, int x, int y)
+{
+	if (state == GLUT_DOWN)
+	{
+		if (camera.fps) {
+			camera.center = car.position - (car.front - car.position) * 3;
+		}
+		else {
+			camera.center = car.position - (car.front - car.position) * 3; // adjust camera tps
+			camera.eye = car.front * 2 - car.position + Vector3f(0, 5, 0);
+		}
+	}
+	else if (state == GLUT_UP) {
+		if (camera.fps) {
+			camera.center = car.front + (car.front - car.position) * 3;
+		}
+		else {
+			camera.center = car.front; // adjust camera tps
+			camera.eye = car.position * 2 - car.front + Vector3f(0, 5, 0);
+		}
+	}
+}
+
+//=======================================================================
 // Main Function
 //=======================================================================
 void main(int argc, char** argv)
@@ -1161,6 +1187,8 @@ void main(int argc, char** argv)
 	glutTimerFunc(0, time, 0);
 
 	glutKeyboardFunc(myKeyboard);
+
+	glutMouseFunc(myMouse);
 
 	myInit();
 
