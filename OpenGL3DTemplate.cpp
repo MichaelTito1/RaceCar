@@ -537,7 +537,7 @@ public:
 				distance(position.x, position.z, carBackCenter.x, carBackCenter.z) <= 3) {
 				//detected collision with the car
 				visible = false;
-				lives++;
+				lives = min(lives+1, 3);
 				PlaySound(TEXT("sound/point.wav"), NULL, SND_ASYNC);
 			}
 		}
@@ -1036,8 +1036,9 @@ void newLevel(int val) {
 	}
 	else {
 		level = 2;
+		lives = 3;
 		myInit();
-		timeLeft=20;
+		timeLeft=30;
 		movingToNewLevel = false;
 		glutPostRedisplay();
 		glutTimerFunc(0, time, 0);
