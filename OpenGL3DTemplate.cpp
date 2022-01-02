@@ -19,6 +19,7 @@ char title[] = "3D Model Loader Sample";
 bool gameover = false, winner = false, winnerSound = false;
 double timeLeft = 30;
 int level = 1;
+bool movingToNewLevel = false;
 
 // 3D Projection Options
 GLdouble fovy = 45;
@@ -598,13 +599,13 @@ public:
 	Vector3f position, rotation, scale;
 
 	Tree() {
-		model.Load("Models/tree/Tree1.3ds");
+		model.Load("Models/tree.3ds");
 		position = Vector3f(20, -1, 5);
 		rotation = Vector3f(90, 90, 0);
-		scale = Vector3f(2, 2, 2);
+		scale = Vector3f(0.1,0.1,0.1);
 	}
 	Tree(Vector3f _position, Vector3f _rotation, Vector3f _scale) {
-		model.Load("Models/tree/Tree1.3ds");
+		model.Load("Models/tree.3ds");
 		position = _position;
 		rotation = _rotation;
 		scale = _scale;
@@ -612,7 +613,7 @@ public:
 	void draw() {
 		glPushMatrix();
 		glTranslatef(10, 0, 0);
-		glScalef(0.7, 0.7, 0.7);
+		glScalef(scale.x, scale.y, scale.z);
 		model.Draw();
 		glPopMatrix();
 	}
@@ -680,13 +681,13 @@ void myInit(void)
 		car = Car();
 		box = Box(Vector3f(0, 0, -17), Vector3f(0, 0, 0), Vector3f(4, 4, 4));
 		box2 = Box(Vector3f(64, 0, 6), Vector3f(0, 0, 0), Vector3f(4, 4, 4));
-		heart = Heart(Vector3f(67, 1.3, -17), Vector3f(0, 0, 0), Vector3f(0.2, 0.2, 0.2));
+		heart = Heart(Vector3f(67, 0.5, -17), Vector3f(0, 0, 0), Vector3f(0.2, 0.2, 0.2));
 		rock1 = Rock(Vector3f(62, 0, -1), Vector3f(0, 0, 0), Vector3f(0.07, 0.07, 0.07));
 		rock2 = Rock(Vector3f(62, 0, -50), Vector3f(0, 0, 0), Vector3f(0.07, 0.07, 0.07));
-		coin = Coin(Vector3f(0, 1, 7), Vector3f(0, 0, 90), Vector3f(1, 1, 1));
-		coin2 = Coin(Vector3f(33, 1, -66), Vector3f(0, 0, 90), Vector3f(1, 1, 1));
-		coin3 = Coin(Vector3f(47, 1, -66), Vector3f(0, 0, 90), Vector3f(1, 1, 1));
-		coin4 = Coin(Vector3f(14, 1, 25), Vector3f(0, 0, 90), Vector3f(1, 1, 1));
+		coin = Coin(Vector3f(0, 1.3, 7), Vector3f(0, 0, 90), Vector3f(1, 1, 1));
+		coin2 = Coin(Vector3f(33, 1.3, -66), Vector3f(0, 0, 90), Vector3f(1, 1, 1));
+		coin3 = Coin(Vector3f(47, 1.3, -66), Vector3f(0, 0, 90), Vector3f(1, 1, 1));
+		coin4 = Coin(Vector3f(14, 1.3, 25), Vector3f(0, 0, 90), Vector3f(1, 1, 1));
 		tank = Tank(Vector3f(47, 4, 13), Vector3f(0, 45, 0), Vector3f(0.03, 0.03, 0.03));
 		declareBuildings();
 		declareRoads();
@@ -698,13 +699,13 @@ void myInit(void)
 		road = Road(Vector3f(0, -1, -53), Vector3f(0, 90, 0), Vector3f(2.5, 1, 4.5));
 		tree = Tree();
 
-		box = Box(Vector3f(3, 0, -20), Vector3f(0, 0, 0), Vector3f(4, 4, 4));
-		box2 = Box(Vector3f(3, 0, -5), Vector3f(0, 0, 0), Vector3f(4, 4, 4));
-		coin = Coin(Vector3f(3, 1, 7), Vector3f(0, 0, 90), Vector3f(1, 1, 1));
-		coin2 = Coin(Vector3f(0, 1, -5), Vector3f(0, 0, 90), Vector3f(1, 1, 1));
-		tank = Tank(Vector3f(4, 4, -50), Vector3f(0, 45, 0), Vector3f(0.03, 0.03, 0.03));
-		heart = Heart(Vector3f(2, 1, -17), Vector3f(0, 0, 0), Vector3f(0.2, 0.2, 0.2));
-		rock1 = Rock(Vector3f(1, 0, -60), Vector3f(0, 0, 0), Vector3f(0.07, 0.07, 0.07));
+		box = Box(Vector3f(1, 0, -20), Vector3f(0, 0, 0), Vector3f(4, 4, 4));
+		box2 = Box(Vector3f(-1, 0, -5), Vector3f(0, 0, 0), Vector3f(4, 4, 4));
+		coin = Coin(Vector3f(3, 1.3, 7), Vector3f(0, 0, 90), Vector3f(1, 1, 1));
+		coin2 = Coin(Vector3f(0, 1.3, -30), Vector3f(0, 0, 90), Vector3f(1, 1, 1));
+		tank = Tank(Vector3f(4, 4, -95), Vector3f(0, 45, 0), Vector3f(0.03, 0.03, 0.03));
+		heart = Heart(Vector3f(2, 0.5, -50), Vector3f(0, 0, 0), Vector3f(0.2, 0.2, 0.2));
+		rock1 = Rock(Vector3f(-0.3, 0, -70), Vector3f(0, 0, 0), Vector3f(0.07, 0.07, 0.07));
 	}
 }
 
@@ -712,12 +713,12 @@ void setupLights() {
 	GLfloat lmodel_ambient[] = { 0.1f, 0.1f, 0.1f, 1.0f };
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lmodel_ambient);
 
-	GLfloat l0Diffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	GLfloat l0Spec[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	GLfloat l0Ambient[] = { 0.3, 0.3, 0.3, 1.0f };
+	//GLfloat l0Diffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	//GLfloat l0Spec[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	GLfloat l0Ambient[] = { 0.3, 0.3, 0.25, 1.0f };
 	GLfloat l0Position[] = { 0.0f, 0.0f, 0.0f, true };
 	GLfloat l0Direction[] = { 0.0, -1, 0.0 };
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, l0Diffuse);
+	//glLightfv(GL_LIGHT0, GL_DIFFUSE, l0Diffuse);
 	glLightfv(GL_LIGHT0, GL_AMBIENT, l0Ambient);
 	glLightfv(GL_LIGHT0, GL_POSITION, l0Position);
 	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 30.0);
@@ -776,33 +777,33 @@ void myDisplay(void)
 		rock1.draw();
 
 		glPushMatrix();
+		glTranslated(5, 0, -30);
+		tree.draw();
+		glPopMatrix();
+
+		glPushMatrix();
+		glTranslated(5, 0, -45);
+		tree.draw();
+		glPopMatrix();
+
+		glPushMatrix();
+		glTranslated(5, 0, -60);
+		tree.draw();
+		glPopMatrix();
+
+		glPushMatrix();
+		glTranslated(5, 0, -75);
+		tree.draw();
+		glPopMatrix();
+
+
+		glPushMatrix();
 		glTranslated(5, 0, -10);
 		tree.draw();
 		glPopMatrix();
 
 		glPushMatrix();
-		glTranslated(5, 0, -25);
-		tree.draw();
-		glPopMatrix();
-
-		glPushMatrix();
-		glTranslated(5, 0, -40);
-		tree.draw();
-		glPopMatrix();
-
-		glPushMatrix();
-		glTranslated(5, 0, -55);
-		tree.draw();
-		glPopMatrix();
-
-
-		glPushMatrix();
-		glTranslated(5, 0, 10);
-		tree.draw();
-		glPopMatrix();
-
-		glPushMatrix();
-		glTranslated(5, 0, 25);
+		glTranslated(5, 0, 5);
 		tree.draw();
 		glPopMatrix();
 
@@ -817,33 +818,33 @@ void myDisplay(void)
 		// -30 the 2nd left line
 
 		glPushMatrix();
+		glTranslated(-20, 0, -30);
+		tree.draw();
+		glPopMatrix();
+
+		glPushMatrix();
+		glTranslated(-20, 0, -40);
+		tree.draw();
+		glPopMatrix();
+
+		glPushMatrix();
+		glTranslated(-20, 0, -55);
+		tree.draw();
+		glPopMatrix();
+
+		glPushMatrix();
+		glTranslated(-20, 0, -70);
+		tree.draw();
+		glPopMatrix();
+
+
+		glPushMatrix();
 		glTranslated(-20, 0, -10);
 		tree.draw();
 		glPopMatrix();
 
 		glPushMatrix();
-		glTranslated(-20, 0, -20);
-		tree.draw();
-		glPopMatrix();
-
-		glPushMatrix();
-		glTranslated(-20, 0, -35);
-		tree.draw();
-		glPopMatrix();
-
-		glPushMatrix();
-		glTranslated(-20, 0, -50);
-		tree.draw();
-		glPopMatrix();
-
-
-		glPushMatrix();
-		glTranslated(-20, 0, 10);
-		tree.draw();
-		glPopMatrix();
-
-		glPushMatrix();
-		glTranslated(-20, 0, 20);
+		glTranslated(-20, 0, 0);
 		tree.draw();
 		glPopMatrix();
 	}
@@ -878,14 +879,16 @@ void myDisplay(void)
 		output(score, 400, 600.0);
 	}
 	else if (winner) {
-		output("Winner!", 520, 600.0); // TODO: not working
+		output("Winner!", 520, 600.0);
 
 	}
 	else {
-		output("Game Over!", 520, 600.0); // TODO: not working
+		output("Game Over!", 520, 600.0); 
 
 	}
-
+	if (movingToNewLevel) {
+		output("Moving to next level in "+ std::to_string((int)timeLeft-1), 520, 500.0);
+	}
 
 
 	glutSwapBuffers();
@@ -996,6 +999,7 @@ void myKeyboard(unsigned char button, int x, int y)
 // prints text in 3D
 void output(std::string string, float x, float y)
 {
+	glDisable(GL_LIGHTING);
 	glDisable(GL_TEXTURE_2D); //added this
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
@@ -1003,7 +1007,7 @@ void output(std::string string, float x, float y)
 	gluOrtho2D(0.0, WIDTH, 0.0, HEIGHT);
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
-	glColor3f(1, 0, 0);
+	glColor3f(1, 1, 1);
 	glLoadIdentity();
 	glRasterPos2i(x, y);
 	void* font = GLUT_BITMAP_TIMES_ROMAN_24;
@@ -1019,10 +1023,29 @@ void output(std::string string, float x, float y)
 	glPopMatrix();
 	//added this
 	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_LIGHTING);
+}
+
+void time(int val);
+
+void newLevel(int val) {
+	if (timeLeft > 2) {
+		timeLeft -= 0.01;
+		glutPostRedisplay();
+		glutTimerFunc(10, newLevel, 0);
+	}
+	else {
+		level = 2;
+		myInit();
+		timeLeft=20;
+		movingToNewLevel = false;
+		glutPostRedisplay();
+		glutTimerFunc(0, time, 0);
+	}
 }
 
 void time(int val) {
-	timeLeft = max(timeLeft - 0.01, 0);
+	timeLeft = timeLeft - 0.01;
 	// check if winner
 	if (winner) {
 		if(!winnerSound)
@@ -1058,22 +1081,28 @@ void time(int val) {
 	else {
 		// check if out of boundaries
 		int x = car.position.x, z = car.position.z;
-		if (!(x > -3.5 && x < 5.8  && z < 26)) {
+		if (timeLeft<=0||!(x > -3.5 && x < 5.8  && z < 26)) {
+			if (lives > 0)
+				PlaySound(TEXT("sound/die.wav"), NULL, SND_ASYNC);
 			lives = 0; // game over if out of the track boundaries
 		}
 
 		// check if the player reached the finish line
-		if (lives > 0 && car.gas > 0 && z <= -100) {
+		if (lives > 0 && car.gas > 0 && z <= -115) {
 			//winner = 1;
-			level = 2;
-			myInit();
+			/*level = 2;
+			myInit();*/
+			timeLeft = 5;
 			//delay 3 seconds
-			float end = clock() / CLOCKS_PER_SEC + 3;
-			while ((clock() / CLOCKS_PER_SEC) < end);
+			/*float end = clock() / CLOCKS_PER_SEC + 3;
+			while ((clock() / CLOCKS_PER_SEC) < end);*/
+			movingToNewLevel = true;
+			glutTimerFunc(0,newLevel,0);
+			return;
 		}
 	}
 
-	if (car.speed != 0) {
+	if (car.speed) {
 		Vector3f deltaD = (car.front - car.position).unit() * car.speed;
 		car.position = car.position + deltaD;
 		car.front = car.front + deltaD;
@@ -1106,7 +1135,7 @@ void time(int val) {
 	/*car.sirenX += car.position.x;
 	car.sirenZ += car.position.z;*/
 
-	std::cout << car.position.x << ' ' << car.position.z << ' ' << car.score << ' ' << car.gas << ' ' << timeLeft << '\n';
+	//std::cout << car.position.x << ' ' << car.position.z << ' ' << car.score << ' ' << car.gas << ' ' << timeLeft << '\n';
 
 	glutPostRedisplay();
 	glutTimerFunc(10, time, 0);
