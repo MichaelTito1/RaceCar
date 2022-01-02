@@ -15,11 +15,12 @@ int WIDTH = 1200;
 int HEIGHT = 700;
 int lives = 3;
 GLuint tex;
-char title[] = "3D Model Loader Sample";
+char title[] = "Need for speed: Cairo Edition";
 bool gameover = false, winner = false, winnerSound = false;
-double timeLeft = 30;
+double timeLeft = 40;
 int level = 1;
 bool movingToNewLevel = false;
+int movingScore = 0;
 
 // 3D Projection Options
 GLdouble fovy = 45;
@@ -880,6 +881,7 @@ void myDisplay(void)
 	}
 	else if (winner) {
 		output("Winner!", 520, 600.0);
+		output("Your score in this level is " + std::to_string((int)movingScore), 520, 500.0);
 
 	}
 	else {
@@ -888,6 +890,7 @@ void myDisplay(void)
 	}
 	if (movingToNewLevel) {
 		output("Moving to next level in "+ std::to_string((int)timeLeft-1), 520, 500.0);
+		output("Your score in this level is " + std::to_string((int)movingScore), 520, 400.0);
 	}
 
 
@@ -1039,6 +1042,7 @@ void newLevel(int val) {
 		lives = 3;
 		myInit();
 		timeLeft=30;
+		movingScore = 0;
 		movingToNewLevel = false;
 		glutPostRedisplay();
 		glutTimerFunc(0, time, 0);
@@ -1049,8 +1053,10 @@ void time(int val) {
 	timeLeft = timeLeft - 0.01;
 	// check if winner
 	if (winner) {
-		if(!winnerSound)
+		if (!winnerSound) {
+			movingScore = timeLeft;
 			PlaySound(TEXT("sound/winner.wav"), NULL, SND_ASYNC);
+		}
 		winnerSound = true;
 	}
 
@@ -1093,6 +1099,7 @@ void time(int val) {
 			//winner = 1;
 			/*level = 2;
 			myInit();*/
+			movingScore = timeLeft;
 			timeLeft = 5;
 			//delay 3 seconds
 			/*float end = clock() / CLOCKS_PER_SEC + 3;
