@@ -1,0 +1,11 @@
+outer:
+bottom left: -3.2  29
+top left:    -3.2  68
+top right:    68   -70
+bottom right: 68   29
+
+inner:
+bottom left: 4.7 25  
+top left:    4.7  -66
+top right:   60 -65
+bottom right:60  26
