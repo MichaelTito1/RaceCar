@@ -5,15 +5,8 @@
 #include <glut.h>
 #include <iostream>
 #include <string>
-
-#include <cmath>
-
-#include<windows.h>
+#include <Windows.h>
 #include <mmsystem.h>
-
-
-
-
 
 
 #define DEG2RAD(a) (a * 0.0174532925)
@@ -23,9 +16,9 @@ int HEIGHT = 700;
 int lives = 3;
 GLuint tex;
 char title[] = "3D Model Loader Sample";
-bool gameover = false, winner = false;
-int Game_time = 120000;
-int onGameOver = 0;
+bool gameover = false, winner = false, winnerSound = false;
+double timeLeft = 30;
+
 // 3D Projection Options
 GLdouble fovy = 45;
 GLdouble aspectRatio = (GLdouble)WIDTH / (GLdouble)HEIGHT;
@@ -74,8 +67,8 @@ public:
 
 	Camera() {
 		up = Vector3f(0, 1, 0);
-		center = Vector3f(0,0,10); // adjust camera tps
-		eye = Vector3f(0,5,30);
+		center = Vector3f(0, 0, 10); // adjust camera tps
+		eye = Vector3f(0, 5, 30);
 		fps = false;
 	}
 
@@ -127,7 +120,7 @@ public:
 	}
 };
 
-Camera camera = Camera(); 
+Camera camera = Camera();
 
 // Textures
 GLTexture tex_ground;
@@ -189,9 +182,9 @@ void RenderGround()
 
 
 // for collision detection
-float distance(float x1, float z1, float x2, float z2) { 
+float distance(float x1, float z1, float x2, float z2) {
 	return (x1 - x2) * (x1 - x2) + (z1 - z2) * (z1 - z2);
-} 
+}
 
 
 class Car {
@@ -204,10 +197,10 @@ public:
 	float speed, sirenX, sirenZ;
 	Car() {
 		model.Load("Models/car/car.3ds");
-		position = Vector3f(0,0,20);
-		front = Vector3f(0,0,10);
-		rotation = Vector3f(0,0,0);
-		scale = Vector3f(0.01,0.01,0.01);
+		position = Vector3f(0, 0, 20);
+		front = Vector3f(0, 0, 10);
+		rotation = Vector3f(0, 0, 0);
+		scale = Vector3f(0.01, 0.01, 0.01);
 		speed = 0;
 		sirenX = 1;
 		sirenZ = -1;
@@ -231,7 +224,7 @@ public:
 		gluCylinder(gluNewQuadric(), 0.1, 0.2, 0.4, 20, 20);
 		glPopMatrix();
 		glColor3f(1, 1, 1);
-		
+
 		glPopMatrix();
 		glPushMatrix();
 		glTranslated(position.x, position.y, position.z);
@@ -294,7 +287,7 @@ public:
 		model.Load("Models/box1.3ds");
 		position = Vector3f(10, 0, 10);
 		rotation = Vector3f(0, 0, 0);
-		scale = Vector3f(5,5,5);
+		scale = Vector3f(5, 5, 5);
 		visible = true;
 	}
 	Box(Vector3f _position, Vector3f _rotation, Vector3f _scale) {
@@ -321,9 +314,11 @@ public:
 			Vector3f carBackCenter = car.position - car.lightDir;
 			if (distance(position.x, position.z, car.position.x, car.position.z) <= 4 ||
 				distance(position.x, position.z, carFrontCenter.x, carFrontCenter.z) <= 4 ||
-				distance(position.x, position.z, carBackCenter.x, carBackCenter.z) <= 3){
+				distance(position.x, position.z, carBackCenter.x, carBackCenter.z) <= 3) {
 				//detected collision with the car
 				visible = false;
+				lives--;
+				PlaySound(TEXT("sound/hit.wav"), NULL, SND_ASYNC);
 			}
 		}
 	}
@@ -339,7 +334,7 @@ public:
 		model.Load("Models/coin2.3ds");
 		position = Vector3f(10, 1, 5);
 		rotation = Vector3f(0, 0, 90);
-		scale = Vector3f(1,1,1);
+		scale = Vector3f(1, 1, 1);
 		visible = true;
 	}
 	Coin(Vector3f _position, Vector3f _rotation, Vector3f _scale) {
@@ -371,6 +366,7 @@ public:
 				//detected collision with the car
 				visible = false;
 				car.score++;
+				PlaySound(TEXT("sound/point.wav"), NULL, SND_ASYNC);
 			}
 		}
 	}
@@ -384,9 +380,9 @@ public:
 	bool visible;
 	Tank() {
 		model.Load("Models/tank.3ds");
-		position = Vector3f(15,4, -10);
+		position = Vector3f(15, 4, -10);
 		rotation = Vector3f(0, 45, 0);
-		scale = Vector3f(0.03,0.03,0.03);
+		scale = Vector3f(0.03, 0.03, 0.03);
 		visible = true;
 	}
 	Tank(Vector3f _position, Vector3f _rotation, Vector3f _scale) {
@@ -418,6 +414,7 @@ public:
 				//detected collision with the car
 				visible = false;
 				car.gas = min(100, car.gas + 30);
+				PlaySound(TEXT("sound/point.wav"), NULL, SND_ASYNC);
 			}
 		}
 	}
@@ -472,7 +469,7 @@ public:
 		strcat(res, towerNum);
 		strcat(res, ".3ds");
 		model.Load(res);
-		position = Vector3f(10, 0, 5);
+		position = Vector3f(17, 0, 5);
 		rotation = Vector3f(0, 0, 0);
 		scale = Vector3f(1, 1, 1);
 	}
@@ -498,6 +495,103 @@ public:
 	}
 };
 
+class Heart {
+public:
+	Model_3DS model;
+	Vector3f position, rotation, scale;
+	bool visible;
+	Heart() {
+		model.Load("Models/heart.3ds");
+		position = Vector3f(10, 1.3, -5);
+		rotation = Vector3f(90, -90, 0);
+		scale = Vector3f(0.2, 0.2, 0.2);
+		visible = true;
+	}
+	Heart(Vector3f _position, Vector3f _rotation, Vector3f _scale) {
+		model.Load("Models/heart.3ds");
+		position = _position;
+		rotation = _rotation;
+		scale = _scale;
+		visible = true;
+	}
+	void draw() {
+		if (visible) {
+			glColor3f(1, 0, 0);
+			glPopMatrix();
+			glPushMatrix();
+			glTranslated(position.x, position.y, position.z);
+			glScaled(scale.x, scale.y, scale.z);
+			glRotatef(rotation.z, 0, 0, 1);
+			glRotatef(rotation.y, 0, 1, 0);
+			glRotatef(rotation.x, 1, 0, 0);
+			model.Draw();
+			glPopMatrix();
+			glColor3f(1, 1, 1);
+
+			Vector3f carFrontCenter = car.position + car.lightDir;
+			Vector3f carBackCenter = car.position - car.lightDir;
+			if (distance(position.x, position.z, car.position.x, car.position.z) <= 4 ||
+				distance(position.x, position.z, carFrontCenter.x, carFrontCenter.z) <= 6 ||
+				distance(position.x, position.z, carBackCenter.x, carBackCenter.z) <= 3) {
+				//detected collision with the car
+				visible = false;
+				lives++;
+				PlaySound(TEXT("sound/point.wav"), NULL, SND_ASYNC);
+			}
+		}
+	}
+
+};
+
+class Rock {
+public:
+	Model_3DS model;
+	Vector3f position, rotation, scale;
+	bool visible;
+	Rock() {
+		model.Load("Models/rock.3ds");
+		position = Vector3f(8, 0, -10);
+		rotation = Vector3f(0, 0, 0);
+		scale = Vector3f(0.07, 0.07, 0.07);
+		visible = true;
+	}
+	Rock(Vector3f _position, Vector3f _rotation, Vector3f _scale) {
+		model.Load("Models/rock.3ds");
+		position = _position;
+		rotation = _rotation;
+		scale = _scale;
+		visible = true;
+	}
+	void draw() {
+		if (visible) {
+			glColor3f(0.5, 0.2, 0);
+			glPopMatrix();
+			glPushMatrix();
+			glTranslated(position.x, position.y, position.z);
+			glScaled(scale.x, scale.y, scale.z);
+			glRotatef(rotation.z, 0, 0, 1);
+			glRotatef(rotation.y, 0, 1, 0);
+			glRotatef(rotation.x, 1, 0, 0);
+			model.Draw();
+			glPopMatrix();
+			glColor3f(1, 1, 1);
+
+			Vector3f carFrontCenter = car.position + car.lightDir;
+			Vector3f carBackCenter = car.position - car.lightDir;
+			if (distance(position.x + 2, position.z - 4, car.position.x, car.position.z) <= 3 ||
+				distance(position.x + 2, position.z - 4, carFrontCenter.x, carFrontCenter.z) <= 4 ||
+				distance(position.x + 2, position.z - 4, carBackCenter.x, carBackCenter.z) <= 3) {
+				//detected collision with the car
+				visible = false;
+				lives--;
+				PlaySound(TEXT("sound/hit.wav"), NULL, SND_ASYNC);
+			}
+		}
+	}
+
+};
+
+
 void setupCamera() {
 	glMatrixMode(GL_PROJECTION);
 
@@ -516,21 +610,21 @@ void setupCamera() {
 
 	camera.look();
 }
-void output(std::string string1, float x, float y)
+
+void output(std::string string, float x, float y)
 {
 	glDisable(GL_TEXTURE_2D); //added this
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
-	glColor3f(0, 0, 0);
 	glLoadIdentity();
-	gluOrtho2D(0.0, WIDTH, 0.0, HEIGHT);
+	gluOrtho2D(0.0,WIDTH, 0.0, HEIGHT);
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
+	glColor3f(1, 0, 0);
 	glLoadIdentity();
-	glRasterPos2i(x,y);
-	std::string s = "Some text";
-	void* font = GLUT_BITMAP_9_BY_15;
-	for (std::string::iterator i = s.begin(); i != s.end(); ++i)
+	glRasterPos2i(x, y);
+	void* font = GLUT_BITMAP_TIMES_ROMAN_24;
+	for (std::string::iterator i = string.begin(); i != string.end(); ++i)
 	{
 		char c = *i;
 		glColor3d(1.0, 0.0, 0.0);
@@ -544,8 +638,9 @@ void output(std::string string1, float x, float y)
 	glEnable(GL_TEXTURE_2D);
 }
 
-
-Box box;
+Heart heart;
+Rock rock1, rock2;
+Box box, box2;
 Coin coin, coin2;
 Tank tank;
 Road road1, road2, road3, road4;
@@ -554,15 +649,15 @@ Tower tower1, tower2, tower3, tower4;
 void declareBuildings() {
 	tower1 = Tower("001");
 	tower2 = Tower("002", Vector3f(45, 0, 10), Vector3f(0, 90, 0), Vector3f(1, 1, 1));
-	tower3 = Tower("003", Vector3f(15, 0, -40), Vector3f(0, 90, 0), Vector3f(1, 1, 1));
-	tower4 = Tower("004",Vector3f(45, 0, -40), Vector3f(0, 90, 0), Vector3f(1, 1, 1));
+	tower3 = Tower("003", Vector3f(17, 0, -40), Vector3f(0, 90, 0), Vector3f(1, 1, 1));
+	tower4 = Tower("004", Vector3f(45, 0, -40), Vector3f(0, 90, 0), Vector3f(1, 1, 1));
 }
 
 void declareRoads() {
-	road1 = Road(Vector3f(0, -1, -20), Vector3f(0, 90, 0), Vector3f(1.2,1,3));
-	road2 = Road(Vector3f(32, -1, -68), Vector3f(0, 0, 0), Vector3f(2, 1, 1.2));
-	road3 = Road(Vector3f(63, -1, -24), Vector3f(0, 90, 0), Vector3f(1.2, 1, 3.1));
-	road4 = Road(Vector3f(37, -1, 27), Vector3f(0, 0, 0), Vector3f(2, 1, 1.2));
+	road1 = Road(Vector3f(0, -1, -25), Vector3f(0, 90, 0), Vector3f(1.8, 1, 3));
+	road2 = Road(Vector3f(32, -1, -68), Vector3f(0, 0, 0), Vector3f(2, 1, 1.8));
+	road3 = Road(Vector3f(63, -1, -24), Vector3f(0, 90, 0), Vector3f(1.8, 1, 3.1));
+	road4 = Road(Vector3f(37, -1, 24), Vector3f(0, 0, 0), Vector3f(2.2, 1, 1.8));
 }
 
 //=======================================================================
@@ -579,10 +674,14 @@ void myInit(void)
 	glEnable(GL_NORMALIZE);
 
 	car = Car();
-	box = Box();
+	box = Box(Vector3f(0, 0, -17), Vector3f(0, 0, 0), Vector3f(4, 4, 4));
+	box2 = Box(Vector3f(62, 0, 6), Vector3f(0, 0, 0), Vector3f(4, 4, 4));
+	heart = Heart(Vector3f(65, 1.3, -17), Vector3f(0, 0, 0), Vector3f(0.2, 0.2, 0.2));
+	rock1 = Rock(Vector3f(62, 0, -1), Vector3f(0, 0, 0), Vector3f(0.07, 0.07, 0.07));
+	rock2 = Rock(Vector3f(62, 0, -50), Vector3f(0, 0, 0), Vector3f(0.07, 0.07, 0.07));
 	coin = Coin(Vector3f(0, 1, 7), Vector3f(0, 0, 90), Vector3f(1, 1, 1));
 	coin2 = Coin(Vector3f(33, 1, -66), Vector3f(0, 0, 90), Vector3f(1, 1, 1));
-	tank = Tank(Vector3f(47, 4, 17), Vector3f(0, 45, 0), Vector3f(0.03, 0.03, 0.03));
+	tank = Tank(Vector3f(47, 4, 13), Vector3f(0, 45, 0), Vector3f(0.03, 0.03, 0.03));
 	declareBuildings();
 	declareRoads();
 }
@@ -598,8 +697,11 @@ void myDisplay(void)
 	// Draw Ground
 	RenderGround();
 
-	
+	heart.draw();
+	rock1.draw();
+	rock2.draw();
 	box.draw();
+	box2.draw();
 	coin.draw();
 	coin2.draw();
 	tank.draw();
@@ -631,11 +733,27 @@ void myDisplay(void)
 
 
 	glPopMatrix();
-	std::string time = "Remianing time : " + std::to_string(max(0, (int)(1.0 * (Game_time - onGameOver) / 1000))) + " Seconds";
+	if (!winner && lives > 0) {
+		std::string remainingTime = "Remaining time is :  " + std::to_string((int)timeLeft);
+		std::string disLives = "Your Lives :  " + std::to_string((int)lives);
+		std::string gas = "The gas level is :  " + std::to_string((int)car.gas);
+		std::string score = "Your Score is :" + std::to_string((int)car.score);
 
-	//output(numerofgifts, 0.3, 1.7, 0.5);
-	output(time, -8, 7, 0.5);
+		output(remainingTime, 20, 650.0);
 
+		output(gas, 20, 600.0);
+
+		output(disLives, 400, 650.0);
+		output(score, 400, 600.0);
+	}
+	else if (winner) {
+		output("Winner!", 520, 600.0); // TODO: not working
+
+	}
+	else {
+		output("GameOver!", 520, 600.0); // TODO: not working
+
+	}
 
 
 	glutSwapBuffers();
@@ -652,7 +770,7 @@ void myKeyboard(unsigned char button, int x, int y)
 		switch (button)
 		{
 		case 'w':
-			car.gas = max(0, car.gas- 0.3);
+			car.gas = max(0, car.gas - 0.3);
 			car.speed += 0.05;
 			if (car.speed > 0.5) car.speed = 0.5;
 			break;
@@ -743,19 +861,26 @@ void myKeyboard(unsigned char button, int x, int y)
 	glutPostRedisplay();
 }
 
-// prints text in 3D
-
 void time(int val) {
-	onGameOver += 10;
+	timeLeft = max(timeLeft - 0.01, 0);
 	// check if winner
 	if (winner) {
-		output("Winner!", 0, 0, 0); // TODO: not working
+		if (!winnerSound)
+			PlaySound(TEXT("sound/winner.wav"), NULL, SND_ASYNC);
+		winnerSound = true;
+		std::cout << "winner" << std::endl; 
+		output("Winner!", 400.0,600.0); // TODO: not working
 	}
 
 	// check if out of lives 
-	if (lives <= 0 || car.gas <= 0) {
+	if (lives <= 0) {
 		gameover = 1;
-		output("Game Over", car.position.x, 0, car.position.z); // TODO: not working
+		std::cout << "Gameover" << std::endl;
+		std::string score = "Your Score is :" + std::to_string(car.score);
+
+		output(score, 20, 650.0);
+
+		output(std::string ("Game Over"), 400.0,600.0); // TODO: not working
 	}
 
 	// if out of gas, decrement lives and give some more gas to the player
@@ -766,13 +891,14 @@ void time(int val) {
 
 	// check if out of boundaries
 	int x = car.position.x, z = car.position.z;
-	if( (x > 4.5 && x < 61 && z >= -64 && z < 26) || !(x > -1.5 && x < 66 && z > -70 && z < 30) ) {
-		
+	if (timeLeft <= 0 || (x > 4 && x < 60 && z >= -62 && z < 20) || !(x > -3.2 && x < 68 && z > -70 && z < 30)) {
+		if (lives > 0)
+			PlaySound(TEXT("sound/die.wav"), NULL, SND_ASYNC);
 		lives = 0; // game over if out of the track boundaries
 	}
 
 	// check if the player reached the finish line
-	if (lives > 0 && car.gas > 0 && (x > 1.5 && x < 4 && z > 25 && z < 29))
+	if (lives > 0 && car.gas > 0 && (x > 4.5 && x < 5.5 && z > 21 && z < 29))
 		winner = 1;
 	if (car.speed != 0) {
 		Vector3f deltaD = (car.front - car.position).unit() * car.speed;
@@ -790,21 +916,22 @@ void time(int val) {
 	if (coin2.rotation.x == 0) coin2.rotation.x = 360;
 	coin2.rotation.x -= 2;
 
+	if (heart.rotation.y == 0) heart.rotation.y = 360;
+	heart.rotation.y -= 2;
+
 	/*car.sirenX -= car.position.x;
 	car.sirenZ -= car.position.z;*/
 	float xTmp = car.sirenX, zTmp = car.sirenZ;
-	car.sirenX = xTmp * 0.9961946981  - zTmp * 0.08715574275; //rotate -5 degrees
+	car.sirenX = xTmp * 0.9961946981 - zTmp * 0.08715574275; //rotate -5 degrees
 	car.sirenZ = xTmp * 0.08715574275 + zTmp * 0.9961946981;
 	/*car.sirenX += car.position.x;
 	car.sirenZ += car.position.z;*/
 
-	std::cout << car.position.x << ' ' << car.position.z << ' ' << car.score << ' ' << car.gas << '\n';
+	std::cout << car.position.x << ' ' << car.position.z << ' ' << car.score << ' ' << car.gas << ' ' << timeLeft << '\n';
 
 	glutPostRedisplay();
 	glutTimerFunc(10, time, 0);
 }
-
-
 
 //=======================================================================
 // Main Function
