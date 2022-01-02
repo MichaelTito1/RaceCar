@@ -161,7 +161,7 @@ void RenderGround()
 	glBindTexture(GL_TEXTURE_2D, tex_ground.texture[0]);	// Bind the ground texture
 
 	glPushMatrix();
-	glScalef(5.0, 5.0, 5.0);
+	glScalef(6.0, 6.0, 6.0);
 	glBegin(GL_QUADS);
 	glNormal3f(0, 1, 0);	// Set quad normal direction.
 	glTexCoord2f(0, 0);		// Set tex coordinates ( Using (0,0) -> (5,5) with texture wrapping set to GL_REPEAT to simulate the ground repeated grass texture).
@@ -549,7 +549,7 @@ public:
 	}
 };
 
-class Heart {
+/*class Heart {
 public:
 	Model_3DS model;
 	Vector3f position, rotation, scale;
@@ -589,13 +589,17 @@ public:
 				distance(position.x, position.z, carBackCenter.x, carBackCenter.z) <= 3) {
 				//detected collision with the car
 				visible = false;
+				lives++;
+				PlaySound(TEXT("sound/point.wav"), NULL, SND_ASYNC);
 			}
 		}
 	}
 
 };
+*/
 
-class Rock {
+
+/*class Rock {
 public:
 	Model_3DS model;
 	Vector3f position, rotation, scale;
@@ -635,11 +639,17 @@ public:
 				distance(position.x + 2, position.z - 4, carBackCenter.x, carBackCenter.z) <= 3) {
 				//detected collision with the car
 				visible = false;
+				lives--;
+				PlaySound(TEXT("sound/hit.wav"), NULL, SND_ASYNC);
 			}
 		}
 	}
 
 };
+*/
+
+
+
 
 
 
@@ -711,6 +721,8 @@ Tank tank;
 Road road;
 Building building;
 Tree tree;
+//Rock rock;
+//Heart heart;
 
 
 
@@ -730,14 +742,18 @@ void myInit(void)
 	glEnable(GL_NORMALIZE);
 
 	car = Car();
-	box = Box(Vector3f(0, 0, -20), Vector3f(0, 0, 0), Vector3f(4, 4, 4));
-	box2 = Box(Vector3f(62, 0, 6), Vector3f(0, 0, 0), Vector3f(3, 3, 3));
+	box = Box(Vector3f(3, 0, -20), Vector3f(0, 0, 0), Vector3f(4, 4, 4));
+	box2 = Box(Vector3f(3, 0, -5), Vector3f(0, 0, 0), Vector3f(4, 4, 4));
 	coin = Coin(Vector3f(3, 1, 7), Vector3f(0, 0, 90), Vector3f(1, 1, 1));
 	coin2 = Coin(Vector3f(0, 1, -5), Vector3f(0, 0, 90), Vector3f(1, 1, 1));
-	tank = Tank(Vector3f(8, 4, -45), Vector3f(0, 45, 0), Vector3f(0.03, 0.03, 0.03));
-	road = Road(Vector3f(0, -1, -20), Vector3f(0, 90, 0), Vector3f(2.5, 1, 5));
+	tank = Tank(Vector3f(4, 4, -50), Vector3f(0, 45, 0), Vector3f(0.03, 0.03, 0.03));
+	road = Road(Vector3f(0, -1, -53), Vector3f(0, 90, 0), Vector3f(2.5, 1, 4.5));
 	//building = Building();
 	tree = Tree();
+	//
+	//heart = Heart(Vector3f(20, 1.3, -17), Vector3f(0, 0, 0), Vector3f(0.2, 0.2, 0.2));
+	//rock = Rock(Vector3f(20, 0, -1), Vector3f(0, 0, 0), Vector3f(0.07, 0.07, 0.07));
+	
 	
 	
 }
@@ -768,7 +784,10 @@ void myDisplay(void)
 	road.draw();
 	//building.draw();
 	box.draw();
-	//box2.draw();
+	box2.draw();
+
+	//heart.draw();
+	//rock.draw();
 	
 
 	//drawing the trees on the right side 
@@ -807,20 +826,7 @@ void myDisplay(void)
 	glPopMatrix();
 
 
-	/*glPushMatrix();
-	glTranslated(5, 0, 40);
-	tree.draw();
-	glPopMatrix();
-
-	glPushMatrix();
-	glTranslated(5, 0, 55);
-	tree.draw();
-	glPopMatrix();
-	*/
-
-
 	
-
 
 	
 	
@@ -860,22 +866,7 @@ void myDisplay(void)
 	tree.draw();
 	glPopMatrix();
 
-	/*glPushMatrix();
-	glTranslated(-20, 0, 30);
-	tree.draw();
-	glPopMatrix();
-	*/
-
-	/*glPushMatrix();
-	glTranslated(-20, 0, 40);
-	tree.draw();
-	glPopMatrix();
-
-	glPushMatrix();
-	glTranslated(-20, 0, 55);
-	tree.draw();
-	glPopMatrix();
-	*/
+	
 
 
 
@@ -1022,7 +1013,7 @@ void time(int val) {
 	}
 
 	// check if out of lives 
-	if (lives <= 0 || car.gas <= 0) {
+	if (lives <= 0 ) {
 		gameover = 1;
 		output("Game Over", car.position.x, 0, car.position.z); // TODO: not working
 	}
@@ -1035,7 +1026,7 @@ void time(int val) {
 
 	// check if out of boundaries
 	int x = car.position.x, z = car.position.z;
-	if ((x > 4.5 && x < 61 && z >= -64 && z < 26) || !(x > -1.5 && x < 66 && z > -70 && z < 30)) {
+	if (!(x > -3.5 && x < 5.8 && z > -100 && z < 26)) {
 
 		lives = 0; // game over if out of the track boundaries
 	}
